@@ -25,7 +25,6 @@
 #ifndef _GPRO_VECTOR_H_
 #define _GPRO_VECTOR_H_
 
-
 #ifdef __cplusplus
 // DB: link C++ symbols as if they are C where possible
 extern "C" {
@@ -39,13 +38,11 @@ extern "C" {
 typedef union vec3 vec3;
 #endif	// __cplusplus
 
-
 // DB: declare shorthand types
 
 typedef float float3[3];		// 3 floats form the basis of a float vector
 typedef float* floatv;			// generic float vector (pointer)
 typedef float const* floatkv;	// generic constant float vector (pointer)
-
 
 // DB: declare 3D vector
 //	-> why union? all data in the union uses the same address... in this case: 
@@ -79,7 +76,6 @@ union vec3
 #endif	// __cplusplus
 };
 
-
 // DB: declare C functions (all equivalents of above C++ functions are here)
 //	-> return pointers so you can chain operations (they just take pointers)
 
@@ -91,15 +87,12 @@ floatv vec3add(float3 v_lh_sum, float3 const v_rh);	// add other to lh vector
 
 floatv vec3sum(float3 v_sum, float3 const v_lh, float3 const v_rh);	// get sum of lh and rh vector
 
-
 #ifdef __cplusplus
 // DB: end C linkage for C++ symbols
 }
 #endif	// __cplusplus
 
-
 // DB: include inline definitions for this interface
 #include "_inl/gproVector.inl"
-
 
 #endif	// !_GPRO_VECTOR_H_

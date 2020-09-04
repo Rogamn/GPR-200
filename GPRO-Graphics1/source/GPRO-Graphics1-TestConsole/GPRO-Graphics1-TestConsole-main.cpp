@@ -18,15 +18,14 @@
 	GPRO-Graphics1-TestConsole-main.c/.cpp
 	Main entry point source file for a Windows console application.
 
-	Modified by: ____________
-	Modified because: ____________
+	Modified by: Aaron Lurie
+	Modified because: Assignment
 */
 
 
 #include <stdio.h>
 #include <stdlib.h>
-
-
+#include <iostream>
 #include "gpro/gpro-math/gproVector.h"
 
 
@@ -52,11 +51,45 @@ void testVector()
 #endif	// __cplusplus
 }
 
+using namespace std;
 
 int main(int const argc, char const* const argv[])
 {
 	testVector();
 
-	printf("\n\n");
-	system("pause");
+	// Define image size
+	const int IMAGE_HEIGHT = 256;
+	const int IMAGE_WIDTH = 256;
+
+	// Variable declarations
+	float red, green, blue;
+	int ired, igreen, iblue;
+
+	// Guide says to output this
+	cout << "P3\n" << IMAGE_HEIGHT << ' ' << IMAGE_WIDTH << "\n255\n";
+
+	// Main printing loop
+	// Column controller
+	for (int i = IMAGE_HEIGHT - 1; i >= 0; --i)
+	{
+		// Progress indicator
+		cerr << "\rScanlines remaining: " << i << ' ' << flush;
+
+		// Row controller
+		for (int j = 0; j < IMAGE_WIDTH; j++)
+		{
+			// Get new RGB values
+			red = float(j) / (IMAGE_WIDTH - 1);
+			green = float(i) / (IMAGE_HEIGHT - 1);
+			blue = 0.25;
+
+			// Get values to output
+			ired = static_cast<int>(255.999 * red);
+			igreen = static_cast<int>(255.999 * green);
+			iblue = static_cast<int>(255.999 * blue);
+
+			// Output values
+			cout << ired << ' ' << igreen << ' ' << iblue << '\n';
+		}
+	}
 }
