@@ -34,66 +34,37 @@ struct Vec3
 	// Function used to output colors
 	void writeColor(ostream& output, Vec3 color)
 	{
-		output << static_cast<int>(color.x) << ' ' << static_cast<int>(color.y) << ' ' << static_cast<int>(color.z) << '\n';
-	}
-
-	// Function to find unit vector
-	Vec3 unitVector(Vec3 vector)
-	{
-		return vector / sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+		output << static_cast<int>(255.99 * color.x) << ' ' << static_cast<int>(255.99 * color.y) << ' ' << static_cast<int>(255.99 * color.z) << '\n';
 	}
 
 	// Overloaded + operator
 	Vec3 operator+(Vec3 rhs)
 		{
-			Vec3 temp;
-
-			temp.x += rhs.x;
-			temp.y += rhs.y;
-			temp.z += rhs.z;
-
-			return temp;
+			return Vec3(this->x + rhs.x, this->y + rhs.y, this->z + rhs.z);
 		}
 
 	// Overloaded - operator
 	Vec3 operator-(Vec3 rhs)
 		{
-			Vec3 temp;
-
-			temp.x -= rhs.x;
-			temp.y -= rhs.y;
-			temp.z -= rhs.z;
-
-			return temp;
+			return Vec3(this->x - rhs.x, this->y - rhs.y, this->z - rhs.z);
 		}
 
 	// Overloaded * operator
 	Vec3 operator*(Vec3 rhs)
 		{
-			Vec3 temp;
-
-			temp.x *= rhs.x;
-			temp.y *= rhs.y;
-			temp.z *= rhs.z;
-
-			return temp;
+			return Vec3(this->x * rhs.x, this->y * rhs.y, this->z * rhs.z);
 		}
 
 	// Overloaded * operator again
 	Vec3 operator*(double num)
 	{
-		Vec3 temp(num * this->x, num * this->y, num * this->z);
-
-		return temp;
+		return Vec3(this->x * num, this->y * num, this->z * num);
 	}
 
 	// Overloaded / operator 
 	Vec3 operator/(double num)
 	{
-		double tempDoub = (1 / num);
-		Vec3 tempVec( this-> x * tempDoub, this->y * tempDoub, this->z * tempDoub);
-
-		return tempVec;
+		return Vec3(this-> x / num, this->y / num, this->z / num);
 	}
 
 	// Overloaded << operator

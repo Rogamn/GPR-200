@@ -158,12 +158,10 @@
     <ClCompile Include="GPRO-Graphics1.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\include\gpro\gpro-math\gproVector.h" />
+    <ClInclude Include="..\..\..\include\Functions.h" />
     <ClInclude Include="..\..\..\include\ray.h" />
+    <ClInclude Include="..\..\..\include\hittable.h" />
     <ClInclude Include="..\..\..\include\vec3.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\include\gpro\gpro-math\_inl\gproVector.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
