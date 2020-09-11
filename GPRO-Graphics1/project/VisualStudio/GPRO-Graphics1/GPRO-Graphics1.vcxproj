@@ -155,9 +155,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GPRO-Graphics1.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\include\Functions.h" />
     <ClInclude Include="..\..\..\include\ray.h" />
     <ClInclude Include="..\..\..\include\hittable.h" />

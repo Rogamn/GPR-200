@@ -66,15 +66,4 @@ struct Vec3
 	{
 		return Vec3(this-> x / num, this->y / num, this->z / num);
 	}
-
-	// Overloaded << operator
-	friend ostream& operator<<(ostream& output, Vec3& data);
 };
-
-// Overloaded << operator
-ostream& operator<<(ostream& output, Vec3& data)
-{
-	output << data.x << ' ' << data.y << ' ' << data.z;
-
-	return output;
-}

@@ -26,8 +26,6 @@
 // Thanks to Dan for the framework I am not using
 
 // Necessary includes
-#include "vec3.h"
-#include "ray.h"
 #include "hittable.h"
 #include "Functions.h"
 
@@ -95,8 +93,8 @@ int main()
 		// Row controller
 		for (int j = 0; j < IMAGE_WIDTH; ++j)
 		{
-			u = double(j) / (IMAGE_WIDTH - 1);
-			v = double(i) / (IMAGE_HEIGHT - 1);
+			u = double(j) / (static_cast<int>(IMAGE_WIDTH - 1));
+			v = double(i) / (static_cast<int>(IMAGE_HEIGHT - 1));
 
 			Ray ray(origin, lowerLeftCorner + horizontal * u + vertical * v - origin);
 			Vec3 pixels = color(ray);
