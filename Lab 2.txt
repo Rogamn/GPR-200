@@ -14,8 +14,9 @@ vec4 myEffect0(vec2 uv)
 // Alternates displaying a white pixel and a black pixel
 vec4 myEffect1(vec2 fragCoord)
 {
-    // If pixel has even x and y, output white
-    if(int(fragCoord.x) % 2 == 0 && int(fragCoord.y) % 2 == 0)
+    // If pixel has odd x and even y, or vice-versa, output white
+    if((int(fragCoord.x) % 2 != 0 && int(fragCoord.y) % 2 == 0) || 
+       (int(fragCoord.x) % 2 == 0 && int(fragCoord.y) % 2 != 0))
     {
         return vec4(1, 1, 1, 1);
     }
