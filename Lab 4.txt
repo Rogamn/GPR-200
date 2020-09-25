@@ -103,22 +103,29 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
 {
     // Variables
     sSphere sphere;
-    sPointLight light;
-    vec3 displacement, position, normal, diffuseIntensity, L, attenIntensity, color;
+    sPointLight light1, light2;
+    
+    vec3 displacement, position, normal, diffuseIntensity, lightVector, 
+         attenIntensity, color, viewVector, specular, halfVector, normalPoint;
+    const vec3 WHITE_LIGHT = vec3(1.0, 1.0, 1.0);
     vec4 pointDistance;
+    
     float lengthSq, radiusSq, diffuseCoeff;
     
     // Initialize sphere and light
     initSphere(sphere, vec3(0.0, 0.0, -4.0), 0.5);
-    initPointLight(light, vec3(5.0, 5.0, 5.0), vec3(1.0, 1.0, 1.0), 1.0);
+    initPointLight(light1, vec3(9.0, 5.0, 1.0), WHITE_LIGHT, 1.0);
+    initPointLight(light2, vec3(5.0, 9.0, 1.0), WHITE_LIGHT, 1.0);
     
-    pointDistance = light.center - sphere.center;
+    pointDistance = light1.center - sphere.center;
+    
+    normalPoint = vec3(normalize(pointDistance));
     
     // Some math
     displacement.xy = rayDirection.xy - sphere.center.xy;
     
     lengthSq = getLengthSquared(displacement.xy);
-    radiusSq = sphere.radius * sphere.radius;
+    radiusSq = sphere.radius * sphere.radius;  
     
     // If inside sphere
     if(lengthSq <= radiusSq)
@@ -130,19 +137,28 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         normal = (position - sphere.center.xyz) / sphere.radius;
         
         // Calculate diffuse coefficient
-        L = vec3(normalize(pointDistance));
+        lightVector = normalPoint;
         
-        diffuseCoeff = max(0.0, dot(normal, L));
+        diffuseCoeff = max(0.0, dot(normal, lightVector));
         
         // Attenuation coefficient
-        attenIntensity = vec3(1.0 / (1.0 + pointDistance / light.intensity + 
-                          pointDistance * pointDistance / light.intensity * light.intensity)) + 1.0;
+        attenIntensity = vec3(1.0 / (1.0 + pointDistance / light1.intensity + 
+                          pointDistance * pointDistance / light1.intensity * light1.intensity));
         
         // Final Diffuse intensity
         diffuseIntensity = diffuseCoeff * attenIntensity;
         
+        // Setup for blinn-phrong reflectance
+        viewVector = normalPoint;
+        
+        halfVector = normalize(lightVector + viewVector);   
+        
+        // Adding a highlight exponent made things look weird so don't do that
+        specular = normal * halfVector;;
+        
         // Final color
-        color = diffuseIntensity * normal * light.color;
+        color = 0.0 * WHITE_LIGHT + (diffuseIntensity * normal + 
+                                     specular * WHITE_LIGHT) * light1.color;
         
         return vec4(color, 1.0);
 	}
