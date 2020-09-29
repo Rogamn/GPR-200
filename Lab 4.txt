@@ -6,7 +6,7 @@
 
 vec4 asPoint(in vec3 point)
 {
-    return vec4(point, 1.0);
+    return vec4(point, 1);
 }
 
 // asOffset: promote a 3D vector into a 4D vector representing an offset (w=0)
@@ -14,7 +14,7 @@ vec4 asPoint(in vec3 point)
 
 vec4 asOffset(in vec3 offset)
 {
-    return vec4(offset, 0.0);
+    return vec4(offset, 0);
 }
 
 // calcViewport: calculate the viewing plane (viewport) coordinate
@@ -45,7 +45,7 @@ void calcViewport(out vec3 viewport, out vec2 ndc, out vec2 uv,
     ndc = uv * 2.0 - 1.0;
     
     // viewport: x = [-aspect*h/2, +aspect*h/2), y = [-h/2, +h/2), z = -f
-    viewport = vec3(ndc * vec2(aspect, 1.0) * (viewportHeight * 0.5), -focalLength);
+    viewport = vec3(ndc * vec2(aspect, 1) * (viewportHeight * 0.5), -focalLength);
 }
 
 // calcRay: calculate the ray direction and origin for the current pixel
@@ -113,10 +113,10 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     float lengthSq, radiusSq, diffuseCoeff1, diffuseCoeff2;
     
     // Initialize sphere and lights
-    initSphere(sphere, vec3(0.0, 0.0, -4.0), 0.5);
+    initSphere(sphere, vec3(0, 0, -1), 0.5);
     
-    initPointLight(light1, vec3(10.0, 5.0, 1.0), vec3(1.0, 1.0, 0.3), 1.0);
-    initPointLight(light2, vec3(5.0, 10.0, 1.0), vec3(1.0, 1.0, 0.3), 1.0);
+    initPointLight(light1, vec3(10, 5, 1), vec3(1, 1, 0.3), 1.0);
+    initPointLight(light2, vec3(5, 10, 1), vec3(1, 1, 0.3), 1.0);
     
     // Calculate these now to avoid repetition
     lightDistance1 = light1.center - sphere.center;
@@ -163,16 +163,16 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         specular2 = normal * halfVector2;
         
         // Calculate final color
-        color = 0.0 * vec3(1.0, 1.0, 1.0) + 
-            diffuseIntensity1 * normal + specular1 * vec3(1.0, 1.0, 1.0) * light1.color + 
-            diffuseIntensity2 * normal + specular2 * vec3(1.0, 1.0, 1.0) * light2.color;
+        color = 0.0 * vec3(1, 1, 1) + 
+            diffuseIntensity1 * normal + specular1 * vec3(1, 1, 1) * light1.color + 
+            diffuseIntensity2 * normal + specular2 * vec3(1, 1, 1) * light2.color;
         
         // Output color
-        return vec4(color, 1.0);
+        return vec4(color, 1);
 	}
     
     // If outside sphere, just do blue
-    return vec4(0.0, 0.1, 0.5, 1.0);
+    return vec4(0, 0.1, 0.5, 1);
 }
 
 // mainImage: process the current pixel (exactly one call per pixel)
@@ -194,12 +194,12 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     vec4 rayDirection, rayOrigin;
     
     // setup
-    fragColor = vec4(0.0);
+    fragColor = vec4(0);
     
     calcViewport(viewport, ndc, uv, aspect, resolutionInv, viewportHeight, 
                  focalLength, fragCoord, iResolution.xy);
     
-    calcRay(rayDirection, rayOrigin, vec3(0.0), viewport);
+    calcRay(rayDirection, rayOrigin, vec3(0), viewport);
     
     fragColor += calcColor(rayDirection, rayOrigin);
 }
