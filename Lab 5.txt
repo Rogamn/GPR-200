@@ -180,14 +180,40 @@ sCoord distort(in sCoord coords)
 //	  ray: input ray info
 color4 calcColor(in sViewport vp, in sRay ray)
 {
-    // zoom * (current pixel / image resolution)
-    sCoord location = 4.0 * (vp.pixelCoord / iChannelResolution[0].xy);
+    // Zoom * (current pixel / image resolution)
+    sCoord location = 4.0 * (vp.pixelCoord / iChannelResolution[1].xy);
     
     // Cross-fade: blend textures together
-    return mix(texture(iChannel0, location), texture(iChannel1, location), ray.direction.x);
+    //return mix(texture(iChannel0, location), texture(iChannel1, location), ray.direction.x);
     
     // Distortion: distorts texture and makes my eyes hurt
     //return texture(iChannel1, distort(location));
+    
+    // Variable declarations for lambertian lighting
+    vec3 lightPos = vec3(sin(iTime) * 1000.0, 1, 1), normal, tempVec, lightVector, attenIntensity, 
+         diffuseIntensity;
+
+    float diffuseCoeff, tempFlt;
+
+    // Calculate surface normal
+    normal = normalize(vec3(vp.viewportPoint.xy, 1));
+    
+    // Calculate light Vector
+    lightVector = normalize(lightPos - vec3(vp.pixelCoord, 0));
+    
+    // Diffuse coefficiant for lambertian reflectance
+    diffuseCoeff = max(0.0, dot(normal, lightVector));
+
+    // Attentuation for lambertian reflectance
+    // For some reason the intensity needs to be jacked up, otherwise the light is cyan
+    tempVec = lightPos / 100000.0;
+    attenIntensity = vec3(1.0 / (1.0 + tempVec + (tempVec * tempVec)));
+
+    // Calculate final diffuse intensity
+    diffuseIntensity = diffuseCoeff * attenIntensity;
+
+    // Return texture with shading
+    return texture(iChannel1, location) * vec4(diffuseIntensity * vec3(1, 1, 1), 1);
 }
 
 //------------------------------------------------------------

@@ -1,0 +1,121 @@
+// Struct used to hold circle data
+struct circle
+{
+    float x, y, radius;
+};
+
+
+// Displays a gradiant
+vec4 myEffect0(vec2 uv)
+{
+	return vec4(uv, .25, 1);
+}
+
+// Alternates displaying a white pixel and a black pixel
+vec4 myEffect1(vec2 fragCoord)
+{
+    // If pixel has odd x and even y, or vice-versa, output white
+    if((int(fragCoord.x) % 2 != 0 && int(fragCoord.y) % 2 == 0) || 
+       (int(fragCoord.x) % 2 == 0 && int(fragCoord.y) % 2 != 0))
+    {
+        return vec4(1, 1, 1, 1);
+    }
+    
+    // Else, output black
+    return vec4(0, 0, 0, 1);
+}
+
+// Displays a circle whose size and color changes
+vec4 myEffect2(vec2 fragCoord, vec3 color)
+{
+    // Change this to adjust max radius, 200 default
+    float radius = 200.0;
+    
+    // Circle definition: (x-h)^2 + (y-k)^2 = r^2
+    // Circle centered in middle of screen, using sin to vary radius
+    circle coolCircle = circle(pow(fragCoord.x - iResolution.x / 2.0, 2.0),
+                               pow(fragCoord.y - iResolution.y / 2.0, 2.0),
+                               pow(sin(iTime) * radius, 2.0));
+    
+    // If x + y < r, pixel is inside circle
+    if(coolCircle.x + coolCircle.y < coolCircle.radius)
+    {
+        return vec4(1, color.y, 0, 1);
+    }
+    
+    else
+    {
+        return vec4(0, 0.3, color.z,1);
+    }
+}
+
+vec4 myEffect3(vec2 fragCoord, vec3 color)
+{
+    // Use these to adjust circle properties, 200 and 30 default, respectively
+    float range = 200.0, radius = 30.0;
+    
+	// Circle definition: (x-h)^2 + (y-k)^2 = r^2
+    // Circle centered in middle of screen
+        
+    // Using sin and cos to vary circle position
+    // Each circle is different depending on if we add or subtract cos or sin from x or y
+    circle circle1 = circle(pow(fragCoord.x - iResolution.x / 2.0 + sin(iTime) * range, 2.0),
+                            pow(fragCoord.y - iResolution.y / 2.0 + cos(iTime) * range, 2.0),
+                            pow(radius, 2.0));
+    
+    circle circle2 = circle(pow(fragCoord.x - iResolution.x / 2.0 + cos(iTime) * range, 2.0),
+                            pow(fragCoord.y - iResolution.y / 2.0 + sin(iTime) * range, 2.0),
+                            pow(radius, 2.0));
+    
+    circle circle3 = circle(pow(fragCoord.x - iResolution.x / 2.0 + sin(iTime) * range, 2.0),
+                            pow(fragCoord.y - iResolution.y / 2.0 + sin(iTime) * range, 2.0),
+                            pow(radius, 2.0));
+    
+    circle circle4 = circle(pow(fragCoord.x - iResolution.x / 2.0 + cos(iTime) * range, 2.0),
+                            pow(fragCoord.y - iResolution.y / 2.0 + cos(iTime) * range, 2.0),
+                            pow(radius, 2.0));
+        
+    circle circle5 = circle(pow(fragCoord.x - iResolution.x / 2.0 - sin(iTime) * range, 2.0),
+                            pow(fragCoord.y - iResolution.y / 2.0 - cos(iTime) * range, 2.0),
+                            pow(radius, 2.0));
+     
+    circle circle6 = circle(pow(fragCoord.x - iResolution.x / 2.0 - cos(iTime) * range, 2.0),
+                            pow(fragCoord.y - iResolution.y / 2.0 - sin(iTime) * range, 2.0),
+                            pow(radius, 2.0));
+    
+    circle circle7 = circle(pow(fragCoord.x - iResolution.x / 2.0 - sin(iTime) * range, 2.0),
+                            pow(fragCoord.y - iResolution.y / 2.0 - sin(iTime) * range, 2.0),
+                            pow(radius, 2.0));
+    
+    circle circle8 = circle(pow(fragCoord.x - iResolution.x / 2.0 - cos(iTime) * range, 2.0),
+                            pow(fragCoord.y - iResolution.y / 2.0 - cos(iTime) * range, 2.0),
+                            pow(radius, 2.0));
+    
+    // If x + y < r, pixel is inside circle
+    if(circle1.x + circle1.y < circle1.radius || circle2.x + circle2.y < circle2.radius ||
+       circle3.x + circle3.y < circle3.radius || circle4.x + circle4.y < circle4.radius ||
+       circle5.x + circle5.y < circle5.radius || circle6.x + circle6.y < circle6.radius ||
+       circle7.x + circle7.y < circle7.radius || circle8.x + circle8.y < circle8.radius)
+    {
+        return vec4(1,color.y,0,1);
+    }
+    
+    else
+    {
+        return vec4(0,0.3,color.z ,1);
+    }
+}
+
+void mainImage(out vec4 fragColor, vec2 fragCoord)
+{
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = fragCoord/iResolution.xy;
+    
+    //Time varying pixel color
+    vec3 color = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
+    
+    //fragColor = myEffect0(fragCoord, iResolution);
+    //fragColor = myEffect1(fragCoord);
+    fragColor = myEffect2(fragCoord, color);
+    //fragColor = myEffect3(fragCoord, color);
+}
