@@ -162,23 +162,28 @@ void initRayOrtho(out sRay ray,
     initRayPersp(ray, eyePosition + sBasis(viewport.xy, 0), viewport);
 }
 
-// distort: distorts an image
-//	coords: the texture coordinates of the image
-sCoord distort(in sCoord coords)
-{
-	coords.x *= sin(iTime) + sin(iTime);
-	coords.y *= cos(iTime) + cos(iTime);
-    
-    return coords;
-}
-
 //------------------------------------------------------------
 // RENDERING FUNCTIONS
+
+// distort: distorts an image
+//	  coords: the texture coordinates of the image
+sCoord distort(in sCoord original)
+{    
+    // Variable declaration
+    sCoord deformed;
+    
+    // Deform using iTime
+    deformed.x = original.x * sin(iTime) + sin(iTime);
+    deformed.y = original.y * cos(iTime) + cos(iTime);
+    
+    // Return deformed value
+    return deformed;
+}
 
 // calcColor: calculate the color of current pixel
 //	  vp:  input viewport info
 //	  ray: input ray info
-color4 calcColor(in sViewport vp, in sRay ray)
+color4 calcColor(in sViewport vp, in sRay ray, in sCoord fragCoord)
 {
     // Zoom * (current pixel / image resolution)
     sCoord textureloc = 4.0 * (vp.pixelCoord / iChannelResolution[1].xy);
@@ -186,18 +191,19 @@ color4 calcColor(in sViewport vp, in sRay ray)
     // Calulate cubemap coordinate
     vec3 cubemapLoc = vec3(.5, vp.uv.y - 0.5, vp.uv.x + sin(iTime));
     
-    // Return cubemap
-    return texture(iChannel2, cubemapLoc);
-    
     // Cross-fade: blend textures together
     //return mix(texture(iChannel0, textureloc), texture(iChannel1, textureloc), ray.direction.x);
     
     // Distortion: distorts texture and makes my eyes hurt
-    //return texture(iChannel1, distort(textureloc));
+    return texture(iChannel1, distort(textureloc));
+    
+    // Return cubemap
+    //return texture(iChannel2, cubemapLoc);
     
     // Variable declarations for lambertian lighting
-    vec3 lightPos = vec3(sin(iTime) * 1000.0, 1, 1), normal, tempVec, lightVector, attenIntensity, 
-         diffuseIntensity;
+    // For lightPos, sin/cos iTime * 1000 to move light around
+    vec3 lightPos = vec3(sin(iTime) * 1000.0, cos(iTime) * 1000.0, 1), normal, tempVec, lightVector, 
+         attenIntensity, diffuseIntensity;
 
     float diffuseCoeff;
 
