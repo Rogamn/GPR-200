@@ -183,7 +183,7 @@ sCoord distort(in sCoord original)
 // calcColor: calculate the color of current pixel
 //	  vp:  input viewport info
 //	  ray: input ray info
-color4 calcColor(in sViewport vp, in sRay ray, in sCoord fragCoord)
+color4 calcColor(in sViewport vp, in sRay ray)
 {
     // Zoom * (current pixel / image resolution)
     sCoord textureloc = 4.0 * (vp.pixelCoord / iChannelResolution[1].xy);
