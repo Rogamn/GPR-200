@@ -1,0 +1,32 @@
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+
+//------------------------------------------------------------
+// SHADERTOY MAIN
+
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out color4 fragColor, in sCoord fragCoord)
+{
+    // Set up image
+    sCoord uv = fragCoord / iChannelResolution[0].xy;
+    vec4 image = texture(iChannel0, uv);
+    
+    // Calculate location of all pixels
+    vec2 blur,
+         upRight =	 vec2(fragCoord.x + 1.0, fragCoord.y - 1.0),
+         up = 	   	 vec2(fragCoord.x, fragCoord.y - 1.0),
+         upLeft = 	 vec2(fragCoord.x -1.0, fragCoord.y - 1.0),
+         left = 	 vec2(fragCoord.x - 1.0, fragCoord.y),
+         right = 	 vec2(fragCoord.x + 1.0, fragCoord.y),
+         downRight = 	 vec2(fragCoord.x - 1.0, fragCoord.y + 1.0),
+         down = 	 vec2(fragCoord.x, fragCoord.y + 1.0),
+         downLeft = 	 vec2(fragCoord.x + 1.0, fragCoord.y + 1.0);
+    
+    // Calculate blur
+    blur = (1.0 / 16.0) * (downRight + (down * 2.0) + downLeft + (right * 2.0) + (fragCoord * 4.0) +
+           (left * 2.0) + upRight + (up * 2.0) + upLeft);
+    
+    // Apply blur
+    fragColor = image;
+}

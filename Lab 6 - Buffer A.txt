@@ -10,10 +10,19 @@
 color4 calcColor(in sViewport vp, in sRay ray)
 {
     // Calulate cubemap coordinate
-    vec3 cubemapLoc = vec3(.5, vp.uv.y - 0.5, vp.uv.x + sin(iTime));
+    vec3 coord = vec3(ray.direction);
+    
+    // Set up rotation matrix
+    mat2 rotation;
+    
+    rotation[0] = vec2(cos(iTime), sin(iTime));
+    rotation[1] = vec2(-sin(iTime), cos(iTime));
+    
+    // Rotate camera
+    coord.xz = rotation * coord.xz;
     
     // Return cubemap
-    return texture(iChannel0, cubemapLoc);
+    return texture(iChannel0, coord);
 }
 
 //------------------------------------------------------------

@@ -1,0 +1,24 @@
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+
+//------------------------------------------------------------
+// SHADERTOY MAIN
+
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out color4 fragColor, in sCoord fragCoord)
+{
+	// Set up image
+    sCoord uv = fragCoord / iChannelResolution[0].xy;
+    vec4 color = texture(iChannel0, uv);
+    
+    // RGB to Luma calculation from wikipedia
+    float luminance = (color.r * 0.2126) + (color.g * 0.7152) + (color.b * 0.0722);
+    
+    // Luminance^4 to increase dark values
+    luminance *= luminance;
+    luminance *= luminance;
+    
+    // Apply tone mapping
+    fragColor = vec4(luminance);
+}
