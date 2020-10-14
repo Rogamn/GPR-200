@@ -8,25 +8,101 @@
 //    fragCoord: input location of current pixel in image (in pixels)
 void mainImage(out color4 fragColor, in sCoord fragCoord)
 {
-    // Set up image
-    sCoord uv = fragCoord / iChannelResolution[0].xy;
-    vec4 image = texture(iChannel0, uv);
+    // Store in variable to improve code readability
+    vec2 res = iChannelResolution[0].xy;
     
-    // Calculate location of all pixels
-    vec2 blur,
-         upRight =	 vec2(fragCoord.x + 1.0, fragCoord.y - 1.0),
-         up = 	   	 vec2(fragCoord.x, fragCoord.y - 1.0),
-         upLeft = 	 vec2(fragCoord.x -1.0, fragCoord.y - 1.0),
-         left = 	 vec2(fragCoord.x - 1.0, fragCoord.y),
-         right = 	 vec2(fragCoord.x + 1.0, fragCoord.y),
-         downRight = 	 vec2(fragCoord.x - 1.0, fragCoord.y + 1.0),
-         down = 	 vec2(fragCoord.x, fragCoord.y + 1.0),
-         downLeft = 	 vec2(fragCoord.x + 1.0, fragCoord.y + 1.0);
+    /*
+         5*5 coordinates:
+         (-2,-2) (-1,-2) (0,-2) (1,-2) (2,-2)       
+         (-2,-1) (-1,-1) (0,-1) (1,-1) (2,-1)
+         (-2,0)  (-1,0)  (0,0)  (1,0)  (2,0)
+         (-2,1)  (-1,1)  (0,1)  (1,1)  (2,1)
+         (-2,2)  (-1,2)  (0,2)  (1,2)  (2,2)
+
+         Calculate coordinantes
+         Naming scheme: row x, column x, coordinate
+         Ex: row 2, column 4, coordinate = r2c4c
+    */
     
-    // Calculate blur
-    blur = (1.0 / 16.0) * (downRight + (down * 2.0) + downLeft + (right * 2.0) + (fragCoord * 4.0) +
-           (left * 2.0) + upRight + (up * 2.0) + upLeft);
+    vec2 r1c1c = (fragCoord - 2.0) / res,
+         r1c2c = vec2(fragCoord.x - 1.0, fragCoord.y - 2.0) / res,
+         r1c3c = vec2(fragCoord.x, fragCoord.y - 2.0) / res,
+         r1c4c = vec2(fragCoord.x + 1.0, fragCoord.y - 2.0) / res,
+         r1c5c = (fragCoord + 2.0) / res,
+        
+         r2c1c = vec2(fragCoord.x - 2.0, fragCoord.y - 1.0) / res,
+         r2c2c = (fragCoord - 1.0) / res,
+         r2c3c = vec2(fragCoord.x, fragCoord.y - 1.0) / res,
+         r2c4c = vec2(fragCoord.x + 1.0, fragCoord.y - 1.0) / res,
+         r2c5c = vec2(fragCoord.x + 2.0, fragCoord.y - 1.0) / res,
+        
+         r3c1c = vec2(fragCoord.x - 2.0, fragCoord.y) / res,
+         r3c2c = vec2(fragCoord.x - 1.0, fragCoord.y) / res,
+         r3c3c = fragCoord / res,
+         r3c4c = vec2(fragCoord.x + 1.0, fragCoord.y) / res,
+         r3c5c = vec2(fragCoord.x + 2.0, fragCoord.y) / res,
+        
+         r4c1c = vec2(fragCoord.x - 2.0, fragCoord.y + 1.0) / res,
+         r4c2c = vec2(fragCoord.x - 1.0, fragCoord.y + 1.0) / res,
+         r4c3c = vec2(fragCoord.x, fragCoord.y + 1.0) / res,
+         r4c4c = (fragCoord + 1.0) / res,
+         r4c5c = vec2(fragCoord.x + 2.0, fragCoord.y + 1.0) / res,
+        
+         r5c1c = vec2(fragCoord.x - 2.0, fragCoord.y + 2.0) / res,
+         r5c2c = vec2(fragCoord.x - 1.0, fragCoord.y + 2.0) / res,
+         r5c3c = vec2(fragCoord.x, fragCoord.y + 2.0) / res,
+         r5c4c = vec2(fragCoord.x + 1.0, fragCoord.y + 2.0) / res,
+         r5c5c = (fragCoord + 2.0) / res;
+        
+    // Sample
+    // Naming scheme: row x, column x, image
+    // Ex: row 4, column 4, image = r4c4i
+    vec4 r1c1i = texture(iChannel0, r1c1c),
+         r1c2i = texture(iChannel0, r1c2c),
+         r1c3i = texture(iChannel0, r1c3c),
+         r1c4i = texture(iChannel0, r1c4c),
+         r1c5i = texture(iChannel0, r1c5c),
+        
+         r2c1i = texture(iChannel0, r2c1c),
+         r2c2i = texture(iChannel0, r2c2c),
+         r2c3i = texture(iChannel0, r2c3c),
+         r2c4i = texture(iChannel0, r2c4c),
+         r2c5i = texture(iChannel0, r2c5c),
+        
+         r3c1i = texture(iChannel0, r3c1c),
+         r3c2i = texture(iChannel0, r3c2c),
+         r3c3i = texture(iChannel0, r3c3c),
+         r3c4i = texture(iChannel0, r3c4c),
+         r3c5i = texture(iChannel0, r3c5c),
+        
+         r4c1i = texture(iChannel0, r4c1c),
+         r4c2i = texture(iChannel0, r4c2c),
+         r4c3i = texture(iChannel0, r4c3c),
+         r4c4i = texture(iChannel0, r4c4c),
+         r4c5i = texture(iChannel0, r4c5c),
+        
+         r5c1i = texture(iChannel0, r5c1c),
+         r5c2i = texture(iChannel0, r5c2c),
+         r5c3i = texture(iChannel0, r5c3c),
+         r5c4i = texture(iChannel0, r5c4c),
+         r5c5i = texture(iChannel0, r5c5c);
     
-    // Apply blur
-    fragColor = image;
+    /*
+         Kernel taken from wikipedia:
+
+         1  4  6  4 1
+         4 16 24 16 4
+         6 24 36 24 6
+         4 16 24 16 4
+         1  4  6  4 1
+
+         Calculate and apply blur
+    */
+
+    fragColor = (1.0 / 256.0) * 
+        	(r1c1i 	      + (r1c2i * 4.0)  + (r1c3i * 6.0)  + (r1c4i * 4.0)  + r1c5i +
+                (r2c1i * 4.0) + (r2c2i * 16.0) + (r2c3i * 24.0) + (r2c4i * 16.0) + (r2c5i * 4.0) +
+                (r3c1i * 6.0) + (r3c2i * 24.0) + (r3c3i * 36.0) + (r3c4i * 24.0) + (r3c5i * 6.0) +
+                (r4c1i * 4.0) + (r4c2i * 16.0) + (r4c3i * 24.0) + (r4c4i * 16.0) + (r4c5i * 4.0) +
+                 r5c1i 	      + (r5c2i * 4.0)  + (r5c3i * 6.0)  + (r5c4i * 4.0)  + r5c5i);
 }
