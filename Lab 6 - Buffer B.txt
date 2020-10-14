@@ -8,9 +8,9 @@
 //    fragCoord: input location of current pixel in image (in pixels)
 void mainImage(out color4 fragColor, in sCoord fragCoord)
 {
-	// Set up image
-    sCoord uv = fragCoord / iChannelResolution[0].xy;
-    vec4 color = texture(iChannel0, uv);
+    // Set up image
+    vec2 coord = fragCoord / iChannelResolution[0].xy;
+    vec4 color = texture(iChannel0, coord);
     
     // RGB to Luma calculation from wikipedia
     float luminance = (color.r * 0.2126) + (color.g * 0.7152) + (color.b * 0.0722);

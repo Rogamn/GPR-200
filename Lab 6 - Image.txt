@@ -9,11 +9,29 @@
 //    fragCoord: input location of current pixel in image (in pixels)
 void mainImage(out color4 fragColor, in sCoord fragCoord)
 {
-    // setup
-    // test UV for input image
-    sCoord uv = fragCoord / iChannelResolution[0].xy;
+    // Coordinates for image
+    vec2 coord = fragCoord / iChannelResolution[0].xy;
     
-    // TESTING
-    // set iChannel0 to 'Misc/Buffer A' and fetch sample
-    fragColor = texture(iChannel0, uv);
+    vec4 orig = texture(iChannel0, coord), final = texture(iChannel2, coord);
+    
+    // Original pixture
+    //fragColor = orig;
+    
+    // After tone mapping
+    //fragColor = texture(iChannel1, coord);
+    
+    // After convolution
+    //fragColor = final;
+    
+    // Addition
+    //fragColor = orig + final;
+    
+    // Mix
+    //fragColor = mix(orig, final, 1.0);
+    
+    // Screen
+    //fragColor = 1.0 - (1.0 - orig) * (1.0 - final);
+    
+    // Soft light
+    //fragColor = (1.0 - 2.0 * final) * (orig * orig) + 2.0 * final * orig;
 }

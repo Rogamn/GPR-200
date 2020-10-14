@@ -24,35 +24,35 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
          Ex: row 2, column 4, coordinate = r2c4c
     */
     
-    vec2 r1c1c = (fragCoord - 2.0) / res,
+    vec2 r1c1c =     (fragCoord   - 2.0) 		    / res,
          r1c2c = vec2(fragCoord.x - 1.0, fragCoord.y - 2.0) / res,
-         r1c3c = vec2(fragCoord.x, fragCoord.y - 2.0) / res,
+         r1c3c = vec2(fragCoord.x,	 fragCoord.y - 2.0) / res,
          r1c4c = vec2(fragCoord.x + 1.0, fragCoord.y - 2.0) / res,
-         r1c5c = (fragCoord + 2.0) / res,
+         r1c5c = vec2(fragCoord.x + 2.0, fragCoord.y - 2.0) / res,
         
          r2c1c = vec2(fragCoord.x - 2.0, fragCoord.y - 1.0) / res,
-         r2c2c = (fragCoord - 1.0) / res,
-         r2c3c = vec2(fragCoord.x, fragCoord.y - 1.0) / res,
+         r2c2c =     (fragCoord   - 1.0) 		    / res,
+         r2c3c = vec2(fragCoord.x,       fragCoord.y - 1.0) / res,
          r2c4c = vec2(fragCoord.x + 1.0, fragCoord.y - 1.0) / res,
          r2c5c = vec2(fragCoord.x + 2.0, fragCoord.y - 1.0) / res,
         
          r3c1c = vec2(fragCoord.x - 2.0, fragCoord.y) / res,
          r3c2c = vec2(fragCoord.x - 1.0, fragCoord.y) / res,
-         r3c3c = fragCoord / res,
+         r3c3c =      fragCoord 		      / res,
          r3c4c = vec2(fragCoord.x + 1.0, fragCoord.y) / res,
          r3c5c = vec2(fragCoord.x + 2.0, fragCoord.y) / res,
         
          r4c1c = vec2(fragCoord.x - 2.0, fragCoord.y + 1.0) / res,
          r4c2c = vec2(fragCoord.x - 1.0, fragCoord.y + 1.0) / res,
-         r4c3c = vec2(fragCoord.x, fragCoord.y + 1.0) / res,
-         r4c4c = (fragCoord + 1.0) / res,
+         r4c3c = vec2(fragCoord.x, 	 fragCoord.y + 1.0) / res,
+         r4c4c =     (fragCoord   + 1.0) 		    / res,
          r4c5c = vec2(fragCoord.x + 2.0, fragCoord.y + 1.0) / res,
         
          r5c1c = vec2(fragCoord.x - 2.0, fragCoord.y + 2.0) / res,
          r5c2c = vec2(fragCoord.x - 1.0, fragCoord.y + 2.0) / res,
-         r5c3c = vec2(fragCoord.x, fragCoord.y + 2.0) / res,
+         r5c3c = vec2(fragCoord.x, 	 fragCoord.y + 2.0) / res,
          r5c4c = vec2(fragCoord.x + 1.0, fragCoord.y + 2.0) / res,
-         r5c5c = (fragCoord + 2.0) / res;
+         r5c5c =     (fragCoord   + 2.0) 		    / res;
         
     // Sample
     // Naming scheme: row x, column x, image
@@ -100,9 +100,9 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
     */
 
     fragColor = (1.0 / 256.0) * 
-        	(r1c1i 	      + (r1c2i * 4.0)  + (r1c3i * 6.0)  + (r1c4i * 4.0)  + r1c5i +
+        	(r1c1i 	      + (r1c2i * 4.0)  + (r1c3i * 6.0)  + (r1c4i * 4.0)  +  r1c5i +
                 (r2c1i * 4.0) + (r2c2i * 16.0) + (r2c3i * 24.0) + (r2c4i * 16.0) + (r2c5i * 4.0) +
                 (r3c1i * 6.0) + (r3c2i * 24.0) + (r3c3i * 36.0) + (r3c4i * 24.0) + (r3c5i * 6.0) +
                 (r4c1i * 4.0) + (r4c2i * 16.0) + (r4c3i * 24.0) + (r4c4i * 16.0) + (r4c5i * 4.0) +
-                 r5c1i 	      + (r5c2i * 4.0)  + (r5c3i * 6.0)  + (r5c4i * 4.0)  + r5c5i);
+                 r5c1i 	      + (r5c2i * 4.0)  + (r5c3i * 6.0)  + (r5c4i * 4.0)  +  r5c5i);
 }
