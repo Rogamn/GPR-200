@@ -1,0 +1,24 @@
+/*
+	look into:
+	https://www.shadertoy.com/view/XsXXDn
+	https://www.shadertoy.com/view/XlfGRj
+	https://www.shadertoy.com/view/XsjGDt
+*/
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord)
+{ 
+    // Variables
+	vec4 circle;
+    
+    vec2 center = iResolution.xy * 0.5;
+    
+    float radius = iResolution.y * 0.25, temp;
+    
+    // Calculate circle
+    temp = length(center - fragCoord.xy) - radius;
+    
+    circle = vec4(1.0, 0.0, 0.0, 1.0 - temp);
+    
+    // Output to screen
+    fragColor = mix(vec4(0.1), circle, circle.a);
+}
