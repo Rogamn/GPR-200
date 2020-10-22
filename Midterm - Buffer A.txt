@@ -8,24 +8,43 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 
     sRay ray;
     
-    vec3 eyePosition = vec3(0.0), coord;
+    vec3 coord, lightPos = vec3(iResolution.x / 2.0, 1, 1), normal, tempVec, lightVector, 
+         attenIntensity, diffuseIntensity;;
     
-    float viewportHeight = 2.0, focalLength = 1.5, cosTime = cos(iTime), sinTime = sin(iTime);
+    float cosTime = cos(iTime), sinTime = sin(iTime), diffuseCoeff;
     
     mat2 rotation = mat2(cosTime, sinTime, -sinTime, cosTime);
     
-    // Initialize viewport and ray
-    initViewport(vp, viewportHeight, focalLength, fragCoord, iResolution.xy);
-    initRayPersp(ray, eyePosition, vp.viewportPoint.xyz);
+    // Get camera info
+    initialize(fragCoord, iResolution.xy, vp, ray);
     
     // Calulate cubemap coordinate
     coord = ray.direction.xyz;
     
-    //coord.y += 0.25 * sin(iTime);
+    coord.y += 0.25 * sin(iTime);
     
     // Rotate camera
     coord.xz = rotation * coord.xz;
     
     // Return cubemap
     fragColor = texture(iChannel0, coord);
+
+    // Calculate surface normal
+    normal = normalize(vec3(vp.viewportPoint.xy, 1));
+    
+    // Calculate light Vector
+    lightVector = normalize(lightPos - vec3(vp.pixelCoord, 0));
+    
+    // Diffuse coefficiant for lambertian reflectance
+    diffuseCoeff = max(0.0, dot(normal, lightVector));
+
+    // Attentuation for lambertian reflectance
+    tempVec = lightPos * .000001;
+    attenIntensity = vec3(1.0 / (1.0 + tempVec + (tempVec * tempVec)));
+
+    // Calculate final diffuse intensity
+    diffuseIntensity = diffuseCoeff * attenIntensity;
+
+    // Return texture with shading
+    fragColor = texture(iChannel0, coord) * vec4(diffuseIntensity * vec3(1, 1, 1), 1);
 }

@@ -91,3 +91,24 @@ void initRayPersp(out sRay ray, in vec3 eyePosition, in vec3 viewport)
     // w = 0 because it represents a direction, can ignore when using
     ray.direction = vec4(viewport - eyePosition, 0.0);
 }
+
+//------------------------------------------------------------
+// SETUP FUNCTIONS
+
+// initialize: initializes viewport and ray for scene
+//    fragCoord: input coordinate of current fragment
+//    res:       input resolution of viewport
+//    vp:        output viewport
+//    ray:       output ray
+
+void initialize(in vec2 fragCoord, in vec2 res, out sViewport vp, out sRay ray)
+{  
+    // Variable declarations
+    vec3 eyePosition = vec3(0);
+    
+    float viewportHeight = 2.0, focalLength = 1.5;
+    
+    // Initialize
+    initViewport(vp, viewportHeight, focalLength, fragCoord, res);
+    initRayPersp(ray, eyePosition, vp.viewportPoint.xyz);
+}
