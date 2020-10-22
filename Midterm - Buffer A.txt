@@ -1,0 +1,31 @@
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+void mainImage(out vec4 fragColor, in vec2 fragCoord)
+{
+    // Variable declarations
+    sViewport vp;
+
+    sRay ray;
+    
+    vec3 eyePosition = vec3(0.0), coord;
+    
+    float viewportHeight = 2.0, focalLength = 1.5, cosTime = cos(iTime), sinTime = sin(iTime);
+    
+    mat2 rotation = mat2(cosTime, sinTime, -sinTime, cosTime);
+    
+    // Initialize viewport and ray
+    initViewport(vp, viewportHeight, focalLength, fragCoord, iResolution.xy);
+    initRayPersp(ray, eyePosition, vp.viewportPoint.xyz);
+    
+    // Calulate cubemap coordinate
+    coord = ray.direction.xyz;
+    
+    //coord.y += 0.25 * sin(iTime);
+    
+    // Rotate camera
+    coord.xz = rotation * coord.xz;
+    
+    // Return cubemap
+    fragColor = texture(iChannel0, coord);
+}

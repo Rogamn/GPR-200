@@ -5,20 +5,14 @@
 	https://www.shadertoy.com/view/XsjGDt
 */
 
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 { 
     // Variables
-	vec4 circle;
-    
-    vec2 center = iResolution.xy * 0.5;
-    
-    float radius = iResolution.y * 0.25, temp;
-    
-    // Calculate circle
-    temp = length(center - fragCoord.xy) - radius;
-    
-    circle = vec4(1.0, 0.0, 0.0, 1.0 - temp);
+	vec2 coord = fragCoord / iChannelResolution[0].xy;
     
     // Output to screen
-    fragColor = mix(vec4(0.1), circle, circle.a);
+    fragColor = texture(iChannel0, coord);
 }

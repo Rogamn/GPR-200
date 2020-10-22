@@ -1,0 +1,93 @@
+// GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+
+//------------------------------------------------------------
+// VIEWPORT INFO
+
+// sViewport: info about viewport
+//    viewportPoint: location on the viewing plane 
+//							x = horizontal position
+//							y = vertical position
+//							z = plane depth (negative focal length)
+//	  pixelCoord:    position of pixel in image
+//							x = [0, width)	-> [left, right)
+//							y = [0, height)	-> [bottom, top)
+//	  resolution:    resolution of viewport
+//							x = image width in pixels
+//							y = image height in pixels
+//    resolutionInv: resolution reciprocal
+//							x = reciprocal of image width
+//							y = reciprocal of image height
+//	  size:       	 in-scene dimensions of viewport
+//							x = viewport width in scene units
+//							y = viewport height in scene units
+//	  ndc: 			 normalized device coordinate
+//							x = [-1, +1) -> [left, right)
+//							y = [-1, +1) -> [bottom, top)
+// 	  uv: 			 screen-space (UV) coordinate
+//							x = [0, 1) -> [left, right)
+//							y = [0, 1) -> [bottom, top)
+//	  aspectRatio:   aspect ratio of viewport
+//	  focalLength:   distance to viewing plane
+
+struct sViewport
+{
+    vec4 viewportPoint;
+    
+	vec2 pixelCoord, resolution, resolutionInv, size, ndc, uv;
+    
+	float aspectRatio, focalLength;
+};
+
+// initViewport: calculate the viewing plane (viewport) coordinate
+//    vp: 		      output viewport info structure
+//    viewportHeight: input height of viewing plane
+//    focalLength:    input distance between viewer and viewing plane
+//    fragCoord:      input coordinate of current fragment (in pixels)
+//    resolution:     input resolution of screen (in pixels)
+
+void initViewport(out sViewport vp,
+                  in float viewportHeight, in float focalLength,
+                  in vec2 fragCoord, in vec2 resolution)
+{
+    vp.pixelCoord = fragCoord;
+    
+    vp.resolution = resolution;
+    vp.resolutionInv = 1.0 / vp.resolution;
+    vp.aspectRatio = vp.resolution.x * vp.resolutionInv.y;
+    
+    vp.focalLength = focalLength;
+    
+    vp.uv = vp.pixelCoord * vp.resolutionInv;
+    vp.ndc = vp.uv * 2.0 - 1.0;
+    
+    vp.size = vec2(vp.aspectRatio, 1.0) * viewportHeight;
+    vp.viewportPoint = vec4(vp.ndc * vp.size * 0.5, -vp.focalLength, 1.0);
+}
+
+//------------------------------------------------------------
+// RAY INFO
+
+// sRay: ray data structure
+//	  origin: origin point in scene
+//    direction: direction vector in scene
+
+struct sRay
+{
+    vec4 origin, direction;
+};
+
+// initRayPersp: initialize perspective ray
+//    ray: 		   output ray
+//    eyePosition: position of viewer in scene
+//    viewport:    input viewing plane offset
+
+void initRayPersp(out sRay ray, in vec3 eyePosition, in vec3 viewport)
+{
+    // ray origin relative to viewer is the origin
+    // w = 1 because it represents a point, can ignore when using
+    ray.origin = vec4(eyePosition, 1.0);
+
+    // ray direction relative to origin is based on viewing plane coordinate
+    // w = 0 because it represents a direction, can ignore when using
+    ray.direction = vec4(viewport - eyePosition, 0.0);
+}
