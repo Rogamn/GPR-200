@@ -1,50 +1,30 @@
 // mainImage: process the current pixel (exactly one call per pixel)
 //    fragColor: output final color for current pixel
 //    fragCoord: input location of current pixel in image (in pixels)
+
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
     // Variable declarations
-    sViewport vp;
+    
+    // 2.0 = viewport height, 1.5 = focal length
+    sViewport vp = initViewport(2.0, 1.5, fragCoord, iResolution.xy);
 
-    sRay ray;
+    // vec3 = eye position
+    sRay ray = initRayPersp(vec3(0, 0, 0), vp.viewportPoint.xyz);
     
-    vec3 coord, lightPos = vec3(iResolution.x / 2.0, 1, 1), normal, tempVec, lightVector, 
-         attenIntensity, diffuseIntensity;;
+    vec3 coord;
     
-    float cosTime = cos(iTime), sinTime = sin(iTime), diffuseCoeff;
+    // Normalized mouse coordinates, * 2.5 to reach wider area
+    float mouse = 2.5 * iMouse.x / iResolution.x, cosMouse = cos(mouse), sinMouse = sin(mouse);
     
-    mat2 rotation = mat2(cosTime, sinTime, -sinTime, cosTime);
-    
-    // Get camera info
-    initialize(fragCoord, iResolution.xy, vp, ray);
+    // Rotation matrix around y-axis
+    mat3 rotate = mat3(cosMouse, 0, -sinMouse, 0, 1, 0, sinMouse, 0, cosMouse);
     
     // Calulate cubemap coordinate
-    coord = ray.direction.xyz;
-    
-    coord.y += 0.25 * sin(iTime);
+    coord = ray.dir.xyz;
     
     // Rotate camera
-    coord.xz = rotation * coord.xz;
-    
-    // Return cubemap
+    coord *= rotate;
+
     fragColor = texture(iChannel0, coord);
-
-    // Calculate surface normal
-    normal = normalize(vec3(vp.viewportPoint.xy, 1));
-    
-    // Calculate light Vector
-    lightVector = normalize(lightPos - vec3(vp.pixelCoord, 0));
-    
-    // Diffuse coefficiant for lambertian reflectance
-    diffuseCoeff = max(0.0, dot(normal, lightVector));
-
-    // Attentuation for lambertian reflectance
-    tempVec = lightPos * .000001;
-    attenIntensity = vec3(1.0 / (1.0 + tempVec + (tempVec * tempVec)));
-
-    // Calculate final diffuse intensity
-    diffuseIntensity = diffuseCoeff * attenIntensity;
-
-    // Return texture with shading
-    fragColor = texture(iChannel0, coord) * vec4(diffuseIntensity * vec3(1, 1, 1), 1);
 }

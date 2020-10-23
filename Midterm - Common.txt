@@ -33,82 +33,66 @@ struct sViewport
 {
     vec4 viewportPoint;
     
-	vec2 pixelCoord, resolution, resolutionInv, size, ndc, uv;
+	vec2 pixelCoord, res, resInv, size, ndc, uv;
     
 	float aspectRatio, focalLength;
 };
 
 // initViewport: calculate the viewing plane (viewport) coordinate
-//    vp: 		      output viewport info structure
 //    viewportHeight: input height of viewing plane
 //    focalLength:    input distance between viewer and viewing plane
 //    fragCoord:      input coordinate of current fragment (in pixels)
 //    resolution:     input resolution of screen (in pixels)
 
-void initViewport(out sViewport vp,
-                  in float viewportHeight, in float focalLength,
-                  in vec2 fragCoord, in vec2 resolution)
+sViewport initViewport(in float viewportHeight, in float focalLength, 
+                       in vec2 fragCoord, in vec2 resolution)
 {
+    sViewport vp;
+    
     vp.pixelCoord = fragCoord;
     
-    vp.resolution = resolution;
-    vp.resolutionInv = 1.0 / vp.resolution;
-    vp.aspectRatio = vp.resolution.x * vp.resolutionInv.y;
+    vp.res = resolution;
+    vp.resInv = 1.0 / vp.res;
+    vp.aspectRatio = vp.res.x * vp.resInv.y;
     
     vp.focalLength = focalLength;
     
-    vp.uv = vp.pixelCoord * vp.resolutionInv;
+    vp.uv = vp.pixelCoord * vp.resInv;
     vp.ndc = vp.uv * 2.0 - 1.0;
     
     vp.size = vec2(vp.aspectRatio, 1.0) * viewportHeight;
     vp.viewportPoint = vec4(vp.ndc * vp.size * 0.5, -vp.focalLength, 1.0);
+    
+    return vp;
 }
 
 //------------------------------------------------------------
 // RAY INFO
 
 // sRay: ray data structure
-//	  origin: origin point in scene
-//    direction: direction vector in scene
+//	  orig: origin point in scene
+//    dir:  direction vector in scene
 
 struct sRay
 {
-    vec4 origin, direction;
+    vec4 orig, dir;
 };
 
 // initRayPersp: initialize perspective ray
-//    ray: 		   output ray
 //    eyePosition: position of viewer in scene
 //    viewport:    input viewing plane offset
 
-void initRayPersp(out sRay ray, in vec3 eyePosition, in vec3 viewport)
+sRay initRayPersp(in vec3 eyePosition, in vec3 viewport)
 {
+    sRay ray;
+    
     // ray origin relative to viewer is the origin
     // w = 1 because it represents a point, can ignore when using
-    ray.origin = vec4(eyePosition, 1.0);
+    ray.orig = vec4(eyePosition, 1.0);
 
     // ray direction relative to origin is based on viewing plane coordinate
     // w = 0 because it represents a direction, can ignore when using
-    ray.direction = vec4(viewport - eyePosition, 0.0);
-}
-
-//------------------------------------------------------------
-// SETUP FUNCTIONS
-
-// initialize: initializes viewport and ray for scene
-//    fragCoord: input coordinate of current fragment
-//    res:       input resolution of viewport
-//    vp:        output viewport
-//    ray:       output ray
-
-void initialize(in vec2 fragCoord, in vec2 res, out sViewport vp, out sRay ray)
-{  
-    // Variable declarations
-    vec3 eyePosition = vec3(0);
+    ray.dir = vec4(viewport - eyePosition, 0.0);
     
-    float viewportHeight = 2.0, focalLength = 1.5;
-    
-    // Initialize
-    initViewport(vp, viewportHeight, focalLength, fragCoord, res);
-    initRayPersp(ray, eyePosition, vp.viewportPoint.xyz);
+    return ray;
 }
