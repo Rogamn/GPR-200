@@ -12,7 +12,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     // vec3 = eye position
     sRay ray = initRayPersp(vec3(0, 0, 0), vp.viewportPoint.xyz);
     
-    vec3 coord;
+    // Calculate cubemap coordinate
+    vec3 coord = ray.dir.xyz;
     
     // Normalized mouse coordinates, * 2.5 to reach wider area
     float mouse = 2.5 * iMouse.x / iResolution.x, cosMouse = cos(mouse), sinMouse = sin(mouse);
@@ -20,11 +21,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     // Rotation matrix around y-axis
     mat3 rotate = mat3(cosMouse, 0, -sinMouse, 0, 1, 0, sinMouse, 0, cosMouse);
     
-    // Calulate cubemap coordinate
-    coord = ray.dir.xyz;
-    
     // Rotate camera
     coord *= rotate;
+    
+    // Elevate camera, * .6 to avoid distortion
+    coord.y += 0.6 * (iMouse.y / iResolution.y);
 
     fragColor = texture(iChannel0, coord);
 }

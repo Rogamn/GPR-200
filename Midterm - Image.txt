@@ -12,10 +12,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     // vec3 = eye position
     sRay ray = initRayPersp(vec3(0, 0, 0), vp.viewportPoint.xyz);
     
+    // Calculate cubemap coordinate
     vec2 coord = fragCoord / iChannelResolution[0].xy;
     
-    // Lightpos puts light on right side of screen but not against edge
-    vec3 lightPos = vec3(iResolution.x * .8, 1, 1), normal, tempVec, lightVector, 
+    // Lightpos puts light on right side of screen and slightly up
+    vec3 lightPos = vec3(iResolution.x * .8, iResolution.y * .25, 1), normal, tempVec, lightVector, 
          attenIntensity, diffuseIntensity;
     
     float diffuseCoeff;
@@ -36,7 +37,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     // Calculate final diffuse intensity
     diffuseIntensity = diffuseCoeff * attenIntensity;
     
-    // Return texture with shading
-    fragColor = texture(iChannel0, coord) * vec4(diffuseIntensity * vec3(1, 1, 1), 1);
-    //fragColor = texture(iChannel0, coord);
+    // Return cubemap with lighting
+    //fragColor = texture(iChannel0, coord) * vec4(diffuseIntensity * vec3(1, 1, 1), 1);
+    fragColor = texture(iChannel0, coord);
 }
