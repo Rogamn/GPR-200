@@ -4,7 +4,8 @@
 precision highp float;
 #endif
 
-out vec4 rtColor;
+layout (location = 0) out vec4 rtColor;
+
 in vec4 color;
 
 void main()
