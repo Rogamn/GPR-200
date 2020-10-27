@@ -88,11 +88,11 @@ sRay initRay(in vec3 eyePosition, in vec3 viewport)
     
     // ray origin relative to viewer is the origin
     // w = 1 because it represents a point, can ignore when using
-    ray.orig = vec4(eyePosition, 1.0);
+    ray.orig = vec4(eyePosition, 1);
 
     // ray direction relative to origin is based on viewing plane coordinate
     // w = 0 because it represents a direction, can ignore when using
-    ray.dir = vec4(viewport - eyePosition, 0.0);
+    ray.dir = vec4(viewport - eyePosition, 0);
     
     return ray;
 }
