@@ -1,0 +1,41 @@
+// mainImage: process the current pixel (exactly one call per pixel)
+//    fragColor: output final color for current pixel
+//    fragCoord: input location of current pixel in image (in pixels)
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord)
+{
+    // Variable declarations
+    // 2.0 = viewport height, 1.5 = focal length
+    sViewport vp = initViewport(2.0, 1.5, fragCoord, iResolution.xy);
+
+    // vec3 = eye position
+    sRay ray = initRayPersp(vec3(0, -0.25, 0), vp.viewportPoint.xyz);
+    
+    // Calculate cubemap coordinate
+    vec2 coord = fragCoord / iChannelResolution[0].xy;
+    
+    // Lightpos puts light on in middle of screen
+    vec3 lightPos = vec3(iResolution.x * .5, iResolution.y * .5, 250), normal, tempVec, lightVector, 
+         attenIntensity, diffuseIntensity;
+    
+    float diffuseCoeff;
+    
+    // Calculate surface normal, * 5.0 for brightness
+    normal = 5.0 * normalize(vec3(vp.viewportPoint.xy, 1));
+    
+    // Calculate light Vector
+    lightVector = normalize(lightPos - vec3(vp.pixelCoord, 0));
+    
+    // Diffuse coefficiant for lambertian reflectance
+    diffuseCoeff = max(0.0, dot(normal, lightVector));
+
+    // Attentuation for lambertian reflectance
+    tempVec = lightPos * .00001;
+    attenIntensity = vec3(1.0 / (1.0 + tempVec + (tempVec * tempVec)));
+
+    // Calculate final diffuse intensity
+    diffuseIntensity = diffuseCoeff * attenIntensity;
+    
+    // Return cubemap with lighting
+    fragColor = texture(iChannel0, coord) * vec4(diffuseIntensity * vec3(1, 1, 1), 1);
+}

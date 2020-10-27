@@ -4,15 +4,13 @@
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
-    // Calculate cubemap coordinate
+    // Set up image
     vec2 coord = fragCoord / iChannelResolution[0].xy;
+    fragColor = texture(iChannel0, coord);
     
-    // Original cubemap
-    //fragColor = texture(iChannel0, coord);
+    // Calculate luminance
+    float luminance = (fragColor.r * 0.2126) + (fragColor.g * 0.7152) + (fragColor.b * 0.0722);
     
-    // After tone mapping
-    //fragColor = texture(iChannel1, coord);
-    
-    // After lambertian lighting
-    fragColor = texture(iChannel2, coord);
+    // Apply the funky
+    fragColor -= luminance;
 }
