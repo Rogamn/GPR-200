@@ -13,6 +13,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     // After tone mapping
     //fragColor = texture(iChannel1, coord);
     
-    // After lambertian lighting
+    // After lambertian reflectance
     fragColor = texture(iChannel2, coord);
 }

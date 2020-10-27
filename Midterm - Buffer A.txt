@@ -1,30 +1,34 @@
+// calcXRotation: calculates a rotation matirx around y-axis
+//    fov: input variable to alter width of view
+
+mat3 calcYRotation(in float fov)
+{
+    // mouse = fov * normalized mouse coordinates
+	float mouse = fov * iMouse.x / iResolution.x,
+              cosMouse = cos(mouse), sinMouse = sin(mouse);
+    
+    // Rotation matrix around y-axis
+    return mat3(cosMouse, 0, -sinMouse, 0, 1, 0, sinMouse, 0, cosMouse);
+}
+
 // mainImage: process the current pixel (exactly one call per pixel)
 //    fragColor: output final color for current pixel
 //    fragCoord: input location of current pixel in image (in pixels)
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
-    // Variable declarations
     // 2.0 = viewport height, 1.5 = focal length
     sViewport vp = initViewport(2.0, 1.5, fragCoord, iResolution.xy);
 
     // vec3 = eye position
-    sRay ray = initRayPersp(vec3(0, -0.25, 0), vp.viewportPoint.xyz);
+    sRay ray = initRay(vec3(0, 0, 0), vp.viewportPoint.xyz);
     
-    // Calculate cubemap coordinate
-    vec3 coord = ray.dir.xyz;
-    
-    // Normalized mouse coordinates, * 3.5 to reach wider area
-    float mouse = 3.5 * iMouse.x / iResolution.x, cosMouse = cos(mouse), sinMouse = sin(mouse);
-    
-    // Rotation matrix around y-axis
-    mat3 rotate = mat3(cosMouse, 0, -sinMouse, 0, 1, 0, sinMouse, 0, cosMouse);
-    
-    // Rotate camera
-    coord *= rotate;
+    // Calculate cubemap coordinate with rotation, 3.5 to see wider area
+    vec3 coord = ray.dir.xyz * calcYRotation(3.5);
     
     // Elevate camera
     coord.y += iMouse.y / iResolution.y;
 
+    // Output cubemap
     fragColor = texture(iChannel0, coord);
 }

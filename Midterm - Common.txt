@@ -4,7 +4,7 @@
 // VIEWPORT INFO
 
 // sViewport: info about viewport
-//    viewportPoint: location on the viewing plane 
+//	  viewportPoint: location on the viewing plane 
 //							x = horizontal position
 //							y = vertical position
 //							z = plane depth (negative focal length)
@@ -14,16 +14,16 @@
 //	  resolution:    resolution of viewport
 //							x = image width in pixels
 //							y = image height in pixels
-//    resolutionInv: resolution reciprocal
+//	  resolutionInv: resolution reciprocal
 //							x = reciprocal of image width
 //							y = reciprocal of image height
 //	  size:       	 in-scene dimensions of viewport
 //							x = viewport width in scene units
 //							y = viewport height in scene units
-//	  ndc: 			 normalized device coordinate
+//	  ndc: 		 normalized device coordinate
 //							x = [-1, +1) -> [left, right)
 //							y = [-1, +1) -> [bottom, top)
-// 	  uv: 			 screen-space (UV) coordinate
+//	  uv:		 screen-space (UV) coordinate
 //							x = [0, 1) -> [left, right)
 //							y = [0, 1) -> [bottom, top)
 //	  aspectRatio:   aspect ratio of viewport
@@ -60,8 +60,8 @@ sViewport initViewport(in float viewportHeight, in float focalLength,
     vp.uv = vp.pixelCoord * vp.resInv;
     vp.ndc = vp.uv * 2.0 - 1.0;
     
-    vp.size = vec2(vp.aspectRatio, 1.0) * viewportHeight;
-    vp.viewportPoint = vec4(vp.ndc * vp.size * 0.5, -vp.focalLength, 1.0);
+    vp.size = vec2(vp.aspectRatio, 1) * viewportHeight;
+    vp.viewportPoint = vec4(vp.ndc * vp.size * 0.5, -vp.focalLength, 1);
     
     return vp;
 }
@@ -70,7 +70,7 @@ sViewport initViewport(in float viewportHeight, in float focalLength,
 // RAY INFO
 
 // sRay: ray data structure
-//	  orig: origin point in scene
+//    orig: origin point in scene
 //    dir:  direction vector in scene
 
 struct sRay
@@ -78,11 +78,11 @@ struct sRay
     vec4 orig, dir;
 };
 
-// initRayPersp: initialize perspective ray
+// initRay: initialize perspective ray
 //    eyePosition: position of viewer in scene
 //    viewport:    input viewing plane offset
 
-sRay initRayPersp(in vec3 eyePosition, in vec3 viewport)
+sRay initRay(in vec3 eyePosition, in vec3 viewport)
 {
     sRay ray;
     

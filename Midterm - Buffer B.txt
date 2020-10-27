@@ -1,3 +1,11 @@
+// calcLuminance: calculate luminance of a given color
+//    color: input color to find luminance of
+
+float calcLuminance(in vec4 color)
+{
+	return color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722;
+}
+
 // mainImage: process the current pixel (exactly one call per pixel)
 //    fragColor: output final color for current pixel
 //    fragCoord: input location of current pixel in image (in pixels)
@@ -8,9 +16,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     vec2 coord = fragCoord / iChannelResolution[0].xy;
     fragColor = texture(iChannel0, coord);
     
-    // Calculate luminance
-    float luminance = (fragColor.r * 0.2126) + (fragColor.g * 0.7152) + (fragColor.b * 0.0722);
-    
-    // Apply the funky
-    fragColor -= luminance;
+    // Calculate luminance, apply the funky
+    fragColor -= calcLuminance(fragColor);
 }
