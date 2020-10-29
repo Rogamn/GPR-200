@@ -6,9 +6,12 @@ precision highp float;
 
 layout (location = 0) out vec4 rtColor;
 
-in vec4 color;
+in vec4 color, normal;
 
 void main()
 {
+	vec4 n = normalize(normal);
+
 	rtColor = color;
+	rtColor = n * 0.5 + 0.5;
 }

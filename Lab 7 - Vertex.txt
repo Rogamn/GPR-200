@@ -1,18 +1,31 @@
 #version 300 es
 
-layout (location = 0) in vec4 pos;
+layout (location = 0) in vec4 aPosition;
+layout (location = 1) in vec3 aNormal;
 
-out vec4 color;
+out vec4 color, normal;
 
 uniform mat4 uModelMatrix, uViewMatrix, uProjMatrix, uViewProjMatrix;
 
 void main()
 {
-	vec4 worldPos = uModelMatrix * pos, camPos = uViewMatrix * worldPos, clipPos = uProjMatrix * camPos;
+	vec4 worldPos = uModelMatrix * aPosition, camPos = uViewMatrix * worldPos, clipPos = uProjMatrix * camPos;
 	
+	vec3 cameraNormal;
+
 	//clipPos = uProjMatrix * uViewMatrix * uModelMatrix * pos;
 	//clipPos = uViewProjMatrix * uModelMatrix * pos;
 
-	gl_Position = clipPos;
-	color = pos;
+	mat4 modelViewMatrix = uViewMatrix * uModelMatrix;
+	camPos = modelViewMatrix * aPosition;
+
+	gl_Position = uProjMatrix * camPos;
+	
+	mat3 normalMatrix = transpose(inverse(mat3(modelViewMatrix)));
+	cameraNormal = normalMatrix * aNormal;
+	
+	color = vec4(aNormal * 0.5 + 0.5, 1);
+	normal = vec4(aNormal, 0);
+	
+	normal = vec4(cameraNormal, 0);
 }
