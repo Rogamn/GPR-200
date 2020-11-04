@@ -4,23 +4,38 @@
 precision highp float;
 #endif
 
+// Output attribute
 layout (location = 0) out vec4 rtColor;
 
+uniform mat4 uViewMatrix, uModelMatrix;
+uniform sampler2D uTexture;
+
+// Varyings
 in vec4 vColor, vPosition;
 in vec3 vNormal;
+in vec2 vTexCoord;
+
+// sPointLight: data structure to hold info about lights
+// center:    center of light
+// color:     color of light
+// intensity: intensity of light
 
 struct sPointLight
 {
-	vec4 center;
-	vec3 color;
+	vec3 pos, color;
 	float intensity;
 };
 
-sPointLight initLight(in vec4 center, in vec3 color, in float intensity)
+// initLight: function to initialize a light
+// 	center:    input center of light
+// 	color:     input color of light
+// 	intensity: input intensity of light
+
+sPointLight initLight(in vec3 pos, in vec3 color, in float intensity)
 {
 	sPointLight temp;
 	
-	temp.center = center;
+	temp.pos = pos;
 	temp.color = color;
 	temp.intensity = intensity;
 	
@@ -29,5 +44,69 @@ sPointLight initLight(in vec4 center, in vec3 color, in float intensity)
 
 void main()
 {
+	// Variable declarations
+	// Constant to determine number of lights
+	const int NUM_LIGHTS = 3;
+	
+	sPointLight lights[NUM_LIGHTS];
+
+	mat4 modelViewMatrix = uViewMatrix * uModelMatrix;
+		
+	vec4 finalColor;
+	
+	vec3 lightPos, lightVector, tempVec, attenCoeff, diffuseIntens, reflectLight, viewVector;
+	
+	float diffuseCoeff, specularCoeff;
+	
+	// Main lighting calculation loop
+	for (int i = 0; i < NUM_LIGHTS; i++)
+	{
+		// Light positioned at (i + 1, i + 1, 1) in object space
+		lightPos = vec3(i + 1, i + 1, 1);
+		
+		// Light positioned at (i + 1, i + 1, 1) in view space
+		//lightPos = mat3(modelViewMatrix) * vec3(i + 1, i + 1, 1);
+	
+		// Initialize at given position, white light, 1.5 intensity
+		lights[i] = initLight(lightPos, vec3(1), 1.5);
+		
+		// Calculate light vector
+		lightVector = normalize(lights[i].pos);
+	
+		// Calculate diffuse coefficient
+		diffuseCoeff = max(0.0, dot(vNormal, lightVector));
+		
+		// Calculate attenuation, use tempVec for efficiency
+		tempVec = lights[i].pos / lights[i].intensity;
+		attenCoeff = 1.0 / (tempVec + tempVec * tempVec);
+		
+		// Final diffuse intensity
+		diffuseIntensity = diffuseCoeff * attenCoeff;
+		
+		// Calculate reflected light
+		reflectedLight = reflect(-lightVector, vNormal);
+		
+		viewVector = normalize(lights[i].pos - vec3(vPosition));
+		
+		// Calculate specular coefficient
+		specularCoeff = dot(reflectedLight, viewVector) * 0.5 + 0.5;
+
+		// I don't know what the highlight exponent is, 
+		// I just kept raising it until it looked good
+		for (int j = 0; j < 10; j++)
+		{
+			specularCoeff *= specularCoeff;		
+		}
+		
+		// Calculate final color for this light
+		finalColor += texture(uTexture, vTexCoord) * 
+			      vec4(diffuseIntensity + specularCoeff * vec3(1) * lights[i].color, 1);
+	}
+	
+	// Factor in global light
+	finalColor += 0.15 * vec4(1);
+	
+	// Output color from vertex or fragment shader
+	rtColor = finalColor;
 	rtColor = vColor;
 }

@@ -3,13 +3,16 @@
 // Input attributes
 layout (location = 0) in vec4 aPosition;
 layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoord;
 
 // Varyings
 out vec4 vColor, vPosition;
 out vec3 vNormal;
+out vec2 vTexCoord;
 
 // Input uniforms
 uniform mat4 uModelMatrix, uViewMatrix, uViewProjMatrix;
+uniform sampler2D uTexture;
 
 // sPointLight: data structure to hold info about lights
 // center:    center of light
@@ -48,46 +51,51 @@ void main()
 
 	mat4 modelViewMatrix = uViewMatrix * uModelMatrix;
 
-	vec4 clipPos = uViewProjMatrix * uModelMatrix * aPosition, tPosition;
+	vec4 clipPos = uViewProjMatrix * uModelMatrix * aPosition, position, finalColor;
 	
-	vec3 tNormal, lightVector, tempVec, attenCoeff, diffuseIntensity, reflectedLight, 
-		 viewVector, finalColor;
+	vec3 normal, lightPos, lightVector, tempVec, attenCoeff, diffuseIntens, reflectLight, viewVector;
 	
 	float diffuseCoeff, specularCoeff;
 	
-	// Calculate position and normal in view space
-	tPosition = modelViewMatrix * aPosition;
-	tNormal = mat3(modelViewMatrix) * aNormal;
+	// Calculate position and normal in object or view space
+	position = aPosition;
+	//position = modelViewMatrix * aPosition;
+	
+	normal = aNormal;
+	//normal = mat3(modelViewMatrix) * aNormal;
 	
 	// Main lighting calculation loop
 	for (int i = 0; i < NUM_LIGHTS; i++)
 	{
-		// Initialize light at (i + 1, i + 1) in world space, white light, 1.5 intensity
-		lights[i] = initLight(mat3(uModelMatrix) * vec3(i + 1, i + 1, 1), vec3(1), 1.5);
+		// Light positioned at (i + 1, i + 1, 1) in object space
+		lightPos = vec3(i + 1, i + 1, 1);
+		
+		// Light positioned at (i + 1, i + 1, 1) in view space
+		//lightPos = mat3(modelViewMatrix) * vec3(i + 1, i + 1, 1);
+	
+		// Initialize at given position, white light, 1.5 intensity
+		lights[i] = initLight(lightPos, vec3(1), 1.5);
 		
 		// Calculate light vector
 		lightVector = normalize(lights[i].pos);
 	
 		// Calculate diffuse coefficient
-		diffuseCoeff = max(0.0, dot(aNormal, lightVector));
-		diffuseCoeff = max(0.0, dot(tNormal, lightVector));
+		diffuseCoeff = max(0.0, dot(normal, lightVector));
 		
 		// Calculate attenuation, use tempVec for efficiency
 		tempVec = lights[i].pos / lights[i].intensity;
 		attenCoeff = 1.0 / (tempVec + tempVec * tempVec);
 		
 		// Final diffuse intensity
-		diffuseIntensity = diffuseCoeff * attenCoeff;
+		diffuseIntens = diffuseCoeff * attenCoeff;
 		
 		// Calculate reflected light
-		reflectedLight = reflect(-lightVector, aNormal);
-		reflectedLight = reflect(-lightVector, tNormal);
+		reflectLight = reflect(-lightVector, normal);
 		
-		viewVector = normalize(lights[i].pos - vec3(aPosition));
-		viewVector = normalize(lights[i].pos - vec3(tPosition));
+		viewVector = normalize(lights[i].pos - vec3(position));
 		
 		// Calculate specular coefficient
-		specularCoeff = dot(reflectedLight, viewVector) * 0.5 + 0.5;
+		specularCoeff = dot(reflectLight, viewVector) * 0.5 + 0.5;
 
 		// I don't know what the highlight exponent is, 
 		// I just kept raising it until it looked good
@@ -97,21 +105,19 @@ void main()
 		}
 		
 		// Calculate final color for this light
-		finalColor += diffuseIntensity * aNormal + specularCoeff * vec3(1) * lights[i].color;
+		finalColor += texture(uTexture, aTexCoord) * 
+			      vec4(diffuseIntens + specularCoeff * vec3(1) * lights[i].color, 1);
 	}
 	
 	// Factor in global light
-	finalColor += 0.15 * vec3(1);
+	finalColor += 0.15 * vec4(1);
 	
 	// Set varyings
-	vColor = vec4(finalColor, 0);
-
-	vPosition = aPosition;
-	//vPosition = tPosition;
-
-	vNormal = aNormal;
-	//vNormal = tNormal;
-	
+	vColor = finalColor;
+	vPosition = position;
+	vNormal = normal;
+	vTexCoord = aTexCoord;
+		
 	// Set position in clip space
 	gl_Position = clipPos;
 }
