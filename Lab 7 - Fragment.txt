@@ -6,8 +6,8 @@ precision highp float;
 
 layout (location = 0) out vec4 rtColor;
 
-in vec4 color;
-in vec3 normal;
+in vec4 vColor, vPosition;
+in vec3 vNormal;
 
 struct sPointLight
 {
@@ -29,34 +29,5 @@ sPointLight initLight(in vec4 center, in vec3 color, in float intensity)
 
 void main()
 {
-	sPointLight light1 = initLight(vec4(1), vec3(1), 1.5);
-	
-	vec3 cameraNormal, lightVector, viewVector, tempVec, attenCoeff, diffuseIntensity, finalColor, reflectedLight;
-	
-	float diffuseCoeff, specularCoeff;
-
-	lightVector = vec3(normalize(light1.center));
-	
-	diffuseCoeff = max(0.0, dot(normal, lightVector));
-	
-	tempVec = vec3(light1.center / light1.intensity);
-	attenCoeff = 1.0 / (tempVec + tempVec * tempVec);
-	
-	diffuseIntensity = diffuseCoeff * attenCoeff;
-
-	finalColor = diffuseIntensity * vec3(1);
-	
-	viewVector = normalize(vec3(100));
-	reflectedLight = reflect(-lightVector, normal);
-	
-	specularCoeff = max(0.0, dot(reflectedLight, viewVector));
-	
-	specularCoeff *= specularCoeff;
-	specularCoeff *= specularCoeff;
-	
-	finalColor = 0.15 * vec3(1) + (diffuseIntensity * normal + specularCoeff * vec3(1, 1, 1)) * light1.color;
-
-	rtColor = vec4(finalColor, 0);
-
-	rtColor = color;
+	rtColor = vColor;
 }

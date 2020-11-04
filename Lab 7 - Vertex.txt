@@ -1,26 +1,37 @@
 #version 300 es
 
+// Input attributes
 layout (location = 0) in vec4 aPosition;
 layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec4 aTexCoord;
 
-out vec4 color;
-out vec3 normal;
+// Varyings
+out vec4 vColor, vPosition;
+out vec3 vNormal;
 
-uniform mat4 uModelMatrix, uViewMatrix, uProjMatrix, uViewProjMatrix;
+// Input uniforms
+uniform mat4 uModelMatrix, uViewMatrix, uViewProjMatrix;
+
+// sPointLight: data structure to hold info about lights
+// center:    center of light
+// color:     color of light
+// intensity: intensity of light
 
 struct sPointLight
 {
-	vec4 center;
-	vec3 color;
+	vec3 pos, color;
 	float intensity;
 };
 
-sPointLight initLight(in vec4 center, in vec3 color, in float intensity)
+// initLight: function to initialize a light
+// 	center:    input center of light
+// 	color:     input color of light
+// 	intensity: input intensity of light
+
+sPointLight initLight(in vec3 pos, in vec3 color, in float intensity)
 {
 	sPointLight temp;
 	
-	temp.center = center;
+	temp.pos = pos;
 	temp.color = color;
 	temp.intensity = intensity;
 	
@@ -29,64 +40,78 @@ sPointLight initLight(in vec4 center, in vec3 color, in float intensity)
 
 void main()
 {
-	sPointLight light1 = initLight(vec4(1), vec3(1), 1.5);
-
-	vec4 worldPos = uModelMatrix * aPosition, camPos = uViewMatrix * worldPos, clipPos = uProjMatrix * camPos;
+	// Variable declarations
+	// Constant to determine number of lights
+	const int NUM_LIGHTS = 3;
 	
-	vec3 cameraNormal, lightVector, viewVector, tempVec, attenCoeff, diffuseIntensity, finalColor, reflectedLight;
+	sPointLight lights[NUM_LIGHTS];
+
+	mat4 modelViewMatrix = uViewMatrix * uModelMatrix;
+
+	vec4 clipPos = uViewProjMatrix * uModelMatrix * aPosition, tPosition;
+	
+	vec3 tNormal, lightVector, tempVec, attenCoeff, diffuseIntensity, reflectedLight, 
+		 viewVector, finalColor;
 	
 	float diffuseCoeff, specularCoeff;
+	
+	// Calculate position and normal in view space
+	tPosition = modelViewMatrix * aPosition;
+	tNormal = mat3(modelViewMatrix) * aNormal;
+	
+	// Main lighting calculation loop
+	for (int i = 0; i < NUM_LIGHTS; i++)
+	{
+		// Initialize light at (i + 1, i + 1) in world space, white light, 1.5 intensity
+		lights[i] = initLight(mat3(uModelMatrix) * vec3(i + 1, i + 1, 1), vec3(1), 1.5);
+		
+		// Calculate light vector
+		lightVector = normalize(lights[i].pos);
+	
+		// Calculate diffuse coefficient
+		diffuseCoeff = max(0.0, dot(aNormal, lightVector));
+		diffuseCoeff = max(0.0, dot(tNormal, lightVector));
+		
+		// Calculate attenuation, use tempVec for efficiency
+		tempVec = lights[i].pos / lights[i].intensity;
+		attenCoeff = 1.0 / (tempVec + tempVec * tempVec);
+		
+		// Final diffuse intensity
+		diffuseIntensity = diffuseCoeff * attenCoeff;
+		
+		// Calculate reflected light
+		reflectedLight = reflect(-lightVector, aNormal);
+		reflectedLight = reflect(-lightVector, tNormal);
+		
+		viewVector = normalize(lights[i].pos - vec3(aPosition));
+		viewVector = normalize(lights[i].pos - vec3(tPosition));
+		
+		// Calculate specular coefficient
+		specularCoeff = dot(reflectedLight, viewVector) * 0.5 + 0.5;
 
-	lightVector = vec3(normalize(light1.center));
+		// I don't know what the highlight exponent is, 
+		// I just kept raising it until it looked good
+		for (int j = 0; j < 10; j++)
+		{
+			specularCoeff *= specularCoeff;		
+		}
+		
+		// Calculate final color for this light
+		finalColor += diffuseIntensity * aNormal + specularCoeff * vec3(1) * lights[i].color;
+	}
 	
-	diffuseCoeff = max(0.0, dot(aNormal, lightVector));
+	// Factor in global light
+	finalColor += 0.15 * vec3(1);
 	
-	tempVec = vec3(light1.center / light1.intensity);
-	attenCoeff = 1.0 / (tempVec + tempVec * tempVec);
-	
-	diffuseIntensity = diffuseCoeff * attenCoeff;
+	// Set varyings
+	vColor = vec4(finalColor, 0);
 
-	finalColor = diffuseIntensity * vec3(1);
-	
-	viewVector = normalize(vec3(100));
-	reflectedLight = reflect(-lightVector, aNormal);
-	
-	specularCoeff = max(0.0, dot(reflectedLight, viewVector));
-	
-	specularCoeff *= specularCoeff;
-	specularCoeff *= specularCoeff;
-	
-	finalColor = 0.15 * vec3(1) + (diffuseIntensity * aNormal + specularCoeff * vec3(1, 1, 1)) * light1.color;
-	
-	color = vec4(finalColor, 0);
-	normal = aNormal;
-	
-	gl_Position = uProjMatrix * camPos;
+	vPosition = aPosition;
+	//vPosition = tPosition;
 
-	//clipPos = uProjMatrix * uViewMatrix * uModelMatrix * pos;
-	//clipPos = uViewProjMatrix * uModelMatrix * pos;
-
-	//mat4 modelViewMatrix = uViewMatrix * uModelMatrix;
-	//camPos = modelViewMatrix * aPosition;
+	vNormal = aNormal;
+	//vNormal = tNormal;
 	
-	//mat3 normalMatrix = transpose(inverse(mat3(modelViewMatrix)));
-	//cameraNormal = normalMatrix * aNormal;
-	
-	//color = vec4(aNormal * 0.5 + 0.5, 1);
-	//normal = vec4(aNormal, 0);
-	
-	//normal = vec4(cameraNormal, 0);
-	
-	//color = aTexCoord;
-	
-	//mat4 atlasMat = mat4(.5,   0,  0, 0, 
-	//			0,  .5,  0 ,0, 
-	//			0,   0,  1, 0, 
-	//		       .25, .25, 0, 1);
-						 
-	//vec4 uv_atlas = atlasMat * aTexCoord;
-	
-	//color = vec4(specular);
-	
-	//gl_Position = uProjMatrix * modelViewMatrix * aTexCoord;
+	// Set position in clip space
+	gl_Position = clipPos;
 }
