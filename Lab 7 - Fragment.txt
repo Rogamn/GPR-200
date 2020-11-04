@@ -7,6 +7,7 @@ precision highp float;
 // Output attribute
 layout (location = 0) out vec4 rtColor;
 
+// Uniforms
 uniform mat4 uViewMatrix, uModelMatrix;
 uniform sampler2D uTexture;
 
@@ -81,26 +82,23 @@ void main()
 		attenCoeff = 1.0 / (tempVec + tempVec * tempVec);
 		
 		// Final diffuse intensity
-		diffuseIntensity = diffuseCoeff * attenCoeff;
+		diffuseIntens = diffuseCoeff * attenCoeff;
 		
 		// Calculate reflected light
-		reflectedLight = reflect(-lightVector, vNormal);
+		reflectLight = reflect(-lightVector, vNormal);
 		
 		viewVector = normalize(lights[i].pos - vec3(vPosition));
 		
 		// Calculate specular coefficient
-		specularCoeff = dot(reflectedLight, viewVector) * 0.5 + 0.5;
+		specularCoeff = dot(reflectLight, viewVector) * 0.5 + 0.5;
 
-		// I don't know what the highlight exponent is, 
-		// I just kept raising it until it looked good
-		for (int j = 0; j < 10; j++)
-		{
-			specularCoeff *= specularCoeff;		
-		}
-		
+		// Specular highlight of 4
+		specularCoeff *= specularCoeff;
+		specularCoeff *= specularCoeff;
+
 		// Calculate final color for this light
 		finalColor += texture(uTexture, vTexCoord) * 
-			      vec4(diffuseIntensity + specularCoeff * vec3(1) * lights[i].color, 1);
+			      vec4(diffuseIntens + specularCoeff * vec3(0) * lights[i].color, 1);
 	}
 	
 	// Factor in global light
