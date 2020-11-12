@@ -1,0 +1,22 @@
+#version 300 es
+
+#ifdef GL_ES
+precision highp float;
+#endif
+
+uniform vec2 uResolution;
+uniform sampler2D uTexture;
+
+out vec4 rtColor;
+
+void main()
+{
+	//vec4 posNDC = vPosition / vPosition.w;
+	//vec4 posScreen = posNDC * .5 + .5;
+	
+	vec2 uv = gl_FragCoord.xy / uResolution;
+	
+	//rtColor = vec4(1, uv, 1);
+	
+	rtColor = texture(uTexture, uv);
+}

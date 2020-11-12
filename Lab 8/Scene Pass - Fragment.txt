@@ -1,0 +1,13 @@
+#version 300 es
+
+#ifdef GL_ES
+precision highp float;
+#endif
+
+in vec4 vNormal;
+out vec4 rtColor;
+
+void main()
+{
+	rtColor = vNormal;
+}
