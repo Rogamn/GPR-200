@@ -16,7 +16,5 @@ void main()
 	
 	vec2 uv = gl_FragCoord.xy / uResolution;
 	
-	//rtColor = vec4(1, uv, 1);
-	
 	rtColor = texture(uTexture, uv);
 }
