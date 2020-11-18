@@ -2,19 +2,19 @@
 
 // Input attributes
 layout (location = 0) in vec4 aPosition;
-layout (location = 2) in vec2 aTexCoord;
 
 // Uniforms
 uniform mat4 uModelMat, uViewMat, uProjMat;
 
 // Varyings
+out vec4 vClipPos;
 out vec2 vTexCoord;
 
 void main()
 {
-	// Set varyings
-	vTexCoord = aTexCoord;
+	// Calculate space in clip space
+	vClipPos = uProjMat * uViewMat * uModelMat * aPosition;
 
 	// gl_Position in clip space
-	gl_Position = uProjMat * uViewMat * uModelMat * aPosition;
+	gl_Position = vClipPos;
 }

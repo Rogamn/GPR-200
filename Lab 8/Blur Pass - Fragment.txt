@@ -1,0 +1,119 @@
+#version 300 es
+
+#ifdef GL_ES
+precision highp float;
+#endif
+
+// Uniforms
+uniform sampler2D uTexture;
+uniform vec2 uResolution;
+
+in vec2 vTexCoord;
+
+out vec4 rtColor;
+
+void main()
+{
+	vec4 blurred;
+   
+	// Store in variable to improve code readability
+	vec2 invRes = 1.0 / uResolution;
+    
+	/*
+		5*5 coordinates:
+		(-2,-2) (-1,-2) (0,-2) (1,-2) (2,-2)
+		(-2,-1) (-1,-1) (0,-1) (1,-1) (2,-1)
+		(-2,0)  (-1,0)  (0,0)  (1,0)  (2,0)
+		(-2,1)  (-1,1)  (0,1)  (1,1)  (2,1)
+		(-2,2)  (-1,2)  (0,2)  (1,2)  (2,2)
+
+		Calculate coordinantes
+		Naming scheme: row x, column x, coordinate
+		Ex: row 2, column 4, coordinate = r2c4c
+	*/
+    
+	vec2 r1c1c =     (gl_FragCoord.xy - 2.0)   		       * invRes,
+	     r1c2c = vec2(gl_FragCoord.x  - 1.0, gl_FragCoord.y - 2.0) * invRes,
+	     r1c3c = vec2(gl_FragCoord.x,	 gl_FragCoord.y - 2.0) * invRes,
+	     r1c4c = vec2(gl_FragCoord.x  + 1.0, gl_FragCoord.y - 2.0) * invRes,
+	     r1c5c = vec2(gl_FragCoord.x  + 2.0, gl_FragCoord.y - 2.0) * invRes,
+        
+	     r2c1c = vec2(gl_FragCoord.x  - 2.0, gl_FragCoord.y - 1.0) * invRes,
+	     r2c2c =     (gl_FragCoord.xy - 1.0) 		       * invRes,
+	     r2c3c = vec2(gl_FragCoord.x,        gl_FragCoord.y - 1.0) * invRes,
+	     r2c4c = vec2(gl_FragCoord.x  + 1.0, gl_FragCoord.y - 1.0) * invRes,
+	     r2c5c = vec2(gl_FragCoord.x  + 2.0, gl_FragCoord.y - 1.0) * invRes,
+        
+	     r3c1c = vec2(gl_FragCoord.x  - 2.0, gl_FragCoord.y)       * invRes,
+	     r3c2c = vec2(gl_FragCoord.x  - 1.0, gl_FragCoord.y)       * invRes,
+	     r3c3c =      gl_FragCoord.xy 			       * invRes,
+	     r3c4c = vec2(gl_FragCoord.x  + 1.0, gl_FragCoord.y)       * invRes,
+	     r3c5c = vec2(gl_FragCoord.x  + 2.0, gl_FragCoord.y)       * invRes,
+        
+	     r4c1c = vec2(gl_FragCoord.x  - 2.0, gl_FragCoord.y + 1.0) * invRes,
+	     r4c2c = vec2(gl_FragCoord.x  - 1.0, gl_FragCoord.y + 1.0) * invRes,
+	     r4c3c = vec2(gl_FragCoord.x, 	 gl_FragCoord.y + 1.0) * invRes,
+	     r4c4c =     (gl_FragCoord.xy + 1.0) 		       * invRes,
+	     r4c5c = vec2(gl_FragCoord.x  + 2.0, gl_FragCoord.y + 1.0) * invRes,
+        
+	     r5c1c = vec2(gl_FragCoord.x  - 2.0, gl_FragCoord.y + 2.0) * invRes,
+	     r5c2c = vec2(gl_FragCoord.x  - 1.0, gl_FragCoord.y + 2.0) * invRes,
+	     r5c3c = vec2(gl_FragCoord.x, 	 gl_FragCoord.y + 2.0) * invRes,
+	     r5c4c = vec2(gl_FragCoord.x  + 1.0, gl_FragCoord.y + 2.0) * invRes,
+	     r5c5c = 	 (gl_FragCoord.xy + 2.0) 		       * invRes;
+    
+	// Sample
+	// Naming scheme: row x, column x, image
+	// Ex: row 4, column 4, image = r4c4i
+	vec4 r1c1i = texture(uTexture, r1c1c),
+	     r1c2i = texture(uTexture, r1c2c),
+	     r1c3i = texture(uTexture, r1c3c),
+	     r1c4i = texture(uTexture, r1c4c),
+	     r1c5i = texture(uTexture, r1c5c),
+        
+	     r2c1i = texture(uTexture, r2c1c),
+	     r2c2i = texture(uTexture, r2c2c),
+	     r2c3i = texture(uTexture, r2c3c),
+	     r2c4i = texture(uTexture, r2c4c),
+	     r2c5i = texture(uTexture, r2c5c),
+        
+	     r3c1i = texture(uTexture, r3c1c),
+	     r3c2i = texture(uTexture, r3c2c),
+	     r3c3i = texture(uTexture, r3c3c),
+	     r3c4i = texture(uTexture, r3c4c),
+	     r3c5i = texture(uTexture, r3c5c),
+        
+	     r4c1i = texture(uTexture, r4c1c),
+	     r4c2i = texture(uTexture, r4c2c),
+	     r4c3i = texture(uTexture, r4c3c),
+	     r4c4i = texture(uTexture, r4c4c),
+	     r4c5i = texture(uTexture, r4c5c),
+        
+	     r5c1i = texture(uTexture, r5c1c),
+	     r5c2i = texture(uTexture, r5c2c),
+	     r5c3i = texture(uTexture, r5c3c),
+	     r5c4i = texture(uTexture, r5c4c),
+	     r5c5i = texture(uTexture, r5c5c);
+    
+    /*
+		Kernel taken from wikipedia:
+
+		1  4  6  4 1
+		4 16 24 16 4
+		6 24 36 24 6
+		4 16 24 16 4
+		1  4  6  4 1
+
+		Calculate and apply blur
+	*/
+    
+	blurred = (1.0 / 256.0) * 
+		  (r1c1i 	+ (r1c2i * 4.0)  + (r1c3i * 6.0)  + (r1c4i * 4.0)  +  r1c5i +
+		  (r2c1i * 4.0) + (r2c2i * 16.0) + (r2c3i * 24.0) + (r2c4i * 16.0) + (r2c5i * 4.0) +
+		  (r3c1i * 6.0) + (r3c2i * 24.0) + (r3c3i * 36.0) + (r3c4i * 24.0) + (r3c5i * 6.0) +
+		  (r4c1i * 4.0) + (r4c2i * 16.0) + (r4c3i * 24.0) + (r4c4i * 16.0) + (r4c5i * 4.0) +
+ 		   r5c1i        + (r5c2i * 4.0)  + (r5c3i * 6.0)  + (r5c4i * 4.0)  +  r5c5i);
+      
+    // Output final color
+    rtColor = blurred;
+}

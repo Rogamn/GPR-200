@@ -4,22 +4,29 @@
 precision highp float;
 #endif
 
-in vec4 vNormal;
+// Uniforms
+uniform sampler2D uTexture;
+uniform vec2 uResolution;
+
+// Varyings
+in vec2 vTexCoord;
+
 out vec4 rtColor;
 
 void main()
 {
-	vec4 tempColor;
+	vec4 original;
+
+	// Sample from texture
+	original = texture(uTexture, vTexCoord);
 	
 	// RGB to Luma calculation from wikipedia
-	float luminance = (vNormal.r * 0.2126) + (vNormal.g * 0.7152) + (vNormal.b * 0.0722);
+	float luminance = (original.r * 0.2126) + (original.g * 0.7152) + (original.b * 0.0722);
     
-	luminance = max(0.0, luminance);
+	// luminance^4 to increase dark values
+	luminance *= luminance;
+	luminance *= luminance;
     
 	// Apply tone mapping
-	tempColor = vNormal * luminance;
-    
-	rtColor = tempColor;
-
-	//rtColor = vNormal;
+	rtColor = original * luminance;
 }

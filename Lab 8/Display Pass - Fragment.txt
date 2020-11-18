@@ -4,17 +4,18 @@
 precision highp float;
 #endif
 
+// Uniforms
 uniform vec2 uResolution;
 uniform sampler2D uTexture;
 
+// Varyings
 out vec4 rtColor;
 
 void main()
 {
-	//vec4 posNDC = vPosition / vPosition.w;
-	//vec4 posScreen = posNDC * .5 + .5;
-	
+	// Calculate uv
 	vec2 uv = gl_FragCoord.xy / uResolution;
-	
+
+	// Output final image
 	rtColor = texture(uTexture, uv);
 }

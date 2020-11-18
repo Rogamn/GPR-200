@@ -1,8 +1,10 @@
 #version 300 es
 
+// Input attributes
 layout (location = 0) in vec4 aPosition;
 
 void main()
 {
+	// gl_Position in object space
 	gl_Position = aPosition;
 }

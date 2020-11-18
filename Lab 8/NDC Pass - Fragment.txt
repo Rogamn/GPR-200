@@ -1,0 +1,14 @@
+#version 300 es
+
+#ifdef GL_ES
+precision highp float;
+#endif
+
+in vec4 vClipPos;
+
+void main()
+{
+	// Calculate NDC and convert to screen-space
+	vec4 posNDC = vClipPos / vClipPos.w, 
+	     posScreen = posNDC * .5 + .5;
+}
