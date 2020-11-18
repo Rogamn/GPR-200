@@ -9,6 +9,7 @@ uniform sampler2D uTexture;
 uniform vec2 uResolution;
 
 // Varyings
+in vec4 vNormal;
 in vec2 vTexCoord;
 
 out vec4 rtColor;
@@ -17,13 +18,17 @@ void main()
 {
 	vec4 original;
 
-	// Sample from texture
+	// Use texture or normal as color
 	original = texture(uTexture, vTexCoord);
+	//original = vNormal;
 	
 	// RGB to Luma calculation from wikipedia
 	float luminance = (original.r * 0.2126) + (original.g * 0.7152) + (original.b * 0.0722);
+	
+	// Used to prevent bleeding issues, only needed for normal
+	//luminance = max(0.0, luminance);
     
-	// luminance^4 to increase dark values
+	// luminance^4 to increase dark values, recommend commenting out if using normal
 	luminance *= luminance;
 	luminance *= luminance;
     

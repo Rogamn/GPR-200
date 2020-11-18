@@ -14,8 +14,11 @@ out vec4 rtColor;
 
 void main()
 {
-	vec4 blurred;
-   
+	vec4 brightPass, blurred, final;
+	
+	// Store previous pass
+	brightPass = texture(uTexture, vTexCoord);
+
 	// Store in variable to improve code readability
 	vec2 invRes = 1.0 / uResolution;
     
@@ -114,6 +117,9 @@ void main()
 		  (r4c1i * 4.0) + (r4c2i * 16.0) + (r4c3i * 24.0) + (r4c4i * 16.0) + (r4c5i * 4.0) +
  		   r5c1i        + (r5c2i * 4.0)  + (r5c3i * 6.0)  + (r5c4i * 4.0)  +  r5c5i);
       
-    // Output final color
-    rtColor = blurred;
+	// Composite together 
+	final = mix(brightPass, blurred, 1.0);
+      
+	// Output final color
+	rtColor = final;
 }
