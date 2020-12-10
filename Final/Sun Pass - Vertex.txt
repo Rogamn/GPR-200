@@ -1,0 +1,43 @@
+#version 300 es
+
+// Attributes
+layout (location = 0) in vec4 aPosition;
+layout (location = 2) in vec2 aTexCoord;
+
+// Uniforms
+uniform mat4 uModelMat, uViewProjMat;
+uniform float uTime;
+
+// Varying
+out vec2 vTexCoord;
+
+// Calculates an x-axis rotation matrix for a given angle
+mat3 xRotation(float angle)
+{
+	float sinAngle = sin(angle), cosAngle = cos(angle);
+	return mat3(1, 0, 0, 0, cosAngle, sinAngle, 0, -sinAngle, cosAngle);
+}
+
+// Calculates a y-axis rotation matrix for a given angle
+mat3 yRotation(float angle)
+{
+	float sinAngle = sin(angle), cosAngle = cos(angle);
+	return mat3(cosAngle, 0, -sinAngle, 0, 1, 0, sinAngle, 0, cosAngle);
+}
+
+void main()
+{
+	vec4 position = aPosition;
+
+	// Constantly spin in place	
+	position.xyz = yRotation(.25 * uTime) * xRotation(80.0) * position.xyz;
+	
+	// Move away from Earth
+	position.xz += 8.0;
+	
+	// Say varying
+	vTexCoord = aTexCoord;
+	
+	// Set gl_Position in clip space
+	gl_Position = uViewProjMat * uModelMat * position;
+}

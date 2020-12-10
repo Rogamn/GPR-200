@@ -1,0 +1,19 @@
+#version 300 es
+
+#ifdef GL_ES
+precision highp float;
+#endif
+
+// Uniform
+uniform sampler2D uTexture;
+
+// Varyings
+in vec2 vTexCoord;
+
+out vec4 rtColor;
+
+void main()
+{
+	// Sample from texture and display
+	rtColor = texture(uTexture, vTexCoord);
+}

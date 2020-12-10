@@ -1,0 +1,41 @@
+#version 300 es
+
+// Attributes
+layout (location = 0) in vec4 aPosition;
+layout (location = 2) in vec2 aTexCoord;
+
+// Uniforms
+uniform mat4 uModelMat, uViewProjMat;
+uniform vec2 uMouse;
+uniform float uTime;
+
+// Varyings
+out vec2 vTexCoord;
+
+// Calculates a y-axis rotation matrix for a given angle
+mat3 yRotation(float angle)
+{
+	float sinAngle = sin(angle), cosAngle = cos(angle);
+	return mat3(cosAngle, 0, -sinAngle, 0, 1, 0, sinAngle, 0, cosAngle);
+}
+
+// Calculates a z-axis rotation matrix for a given angle
+mat3 zRotation(float angle)
+{
+	float sinAngle = sin(angle), cosAngle = cos(angle);
+	return mat3(cosAngle, sinAngle, 0, -sinAngle, cosAngle, 0, 0, 0, 1);
+}
+
+void main()
+{
+	vec4 position = aPosition;
+
+	// Set varyings
+	vTexCoord = aTexCoord;
+	
+	// Rotate Earth
+	position.xyz = zRotation(-uTime) * position.xyz;
+	
+	// Set gl_Position in clip space	
+	gl_Position = uViewProjMat * uModelMat * position;
+}
