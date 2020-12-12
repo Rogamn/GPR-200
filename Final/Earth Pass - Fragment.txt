@@ -6,14 +6,63 @@ precision highp float;
 
 // Uniforms
 uniform vec2 uMouse;
+uniform float uTime;
 uniform sampler2D uTexture;
 
 // Varyings
+in vec4 vPosition;
+in vec3 vNormal;
 in vec2 vTexCoord;
 
 out vec4 rtColor;
 
+mat3 zRotation(float angle)
+{
+	float sinAngle = sin(angle), cosAngle = cos(angle);
+	return mat3(cosAngle, sinAngle, 0, -sinAngle, cosAngle, 0, 0, 0, 1);
+}
+
 void main()
 {
-	rtColor = texture(uTexture, vTexCoord);
+	vec4 finalColor;
+	
+	vec3 lightPos = zRotation(uTime) * vec3(1, 1, -.1), lightVector, attenCoeff, 
+	     diffuseIntens, reflectLight, viewVector;
+	
+	float diffuseCoeff, specularCoeff;
+	
+	// Calculate light vector
+	lightVector = normalize(lightPos);
+	
+	// Calculate diffuse coefficient
+	diffuseCoeff = max(0.0, dot(vNormal, lightVector));
+	
+	// Calculate attenuation
+	attenCoeff = 1.0 / lightPos * lightPos;
+	
+	// Final diffuse intensity
+	diffuseIntens = diffuseCoeff * attenCoeff;
+	
+	// Calculate reflected light
+	reflectLight = reflect(-lightVector, vNormal);
+	
+	viewVector = normalize(lightPos - vec3(vPosition));
+	
+	// Calculate specular coefficient
+	specularCoeff = dot(reflectLight, viewVector) * 0.5 + 0.5;
+
+	// Specular highlight of 4
+	specularCoeff *= specularCoeff;
+	specularCoeff *= specularCoeff;
+
+	// Calculate final color
+	finalColor = 0.15 * vec4(1) + 
+		     (vec4(diffuseIntens, 1) * texture(uTexture, vTexCoord) +
+		     vec4(specularCoeff * vec3(0), 1)) *
+		     vec4(1);
+	
+	finalColor = abs(finalColor);
+	
+	// Output color
+	rtColor = finalColor;
 }

@@ -2,6 +2,7 @@
 
 // Attributes
 layout (location = 0) in vec4 aPosition;
+layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
 
 // Uniforms
@@ -10,14 +11,9 @@ uniform vec2 uMouse;
 uniform float uTime;
 
 // Varyings
+out vec4 vPosition;
+out vec3 vNormal;
 out vec2 vTexCoord;
-
-// Calculates a y-axis rotation matrix for a given angle
-mat3 yRotation(float angle)
-{
-	float sinAngle = sin(angle), cosAngle = cos(angle);
-	return mat3(cosAngle, 0, -sinAngle, 0, 1, 0, sinAngle, 0, cosAngle);
-}
 
 // Calculates a z-axis rotation matrix for a given angle
 mat3 zRotation(float angle)
@@ -31,6 +27,8 @@ void main()
 	vec4 position = aPosition;
 
 	// Set varyings
+	vPosition = aPosition;
+	vNormal = aNormal;
 	vTexCoord = aTexCoord;
 	
 	// Rotate Earth
