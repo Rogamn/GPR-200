@@ -6,7 +6,6 @@ precision highp float;
 
 // Uniforms
 uniform vec2 uMouse;
-uniform float uTime;
 uniform sampler2D uTexture;
 
 // Varyings
@@ -26,8 +25,8 @@ void main()
 {
 	vec4 finalColor;
 	
-	vec3 lightPos = zRotation(uTime) * vec3(1, 1, -.1), lightVector, attenCoeff, 
-	     diffuseIntens, reflectLight, viewVector;
+	vec3 lightPos = zRotation(4.0 * uMouse.x) * vec3(1, 1, -.1), lightVector, attenuation, 
+	     diffuseIntensity, reflectedLight, viewVector;
 	
 	float diffuseCoeff, specularCoeff;
 	
@@ -38,30 +37,43 @@ void main()
 	diffuseCoeff = max(0.0, dot(vNormal, lightVector));
 	
 	// Calculate attenuation
-	attenCoeff = 1.0 / lightPos * lightPos;
-	
+	attenuation = 1.0 / lightPos * lightPos;
+
 	// Final diffuse intensity
-	diffuseIntens = diffuseCoeff * attenCoeff;
+	diffuseIntensity = diffuseCoeff * attenuation;
 	
 	// Calculate reflected light
-	reflectLight = reflect(-lightVector, vNormal);
+	reflectedLight = reflect(-lightVector, vNormal);
 	
+	// Calculate view vector
 	viewVector = normalize(lightPos - vec3(vPosition));
 	
-	// Calculate specular coefficient
-	specularCoeff = dot(reflectLight, viewVector) * 0.5 + 0.5;
-
-	// Specular highlight of 4
-	specularCoeff *= specularCoeff;
-	specularCoeff *= specularCoeff;
+	/*
+		Calculate specular coefficient
+		We need the conditional to make sure we don't apply the specular coefficiant
+		to the other side of the planet
+		On my computer, I noticed no performance drops from this conditional
+	*/
+	if(dot(vNormal, lightPos) > 0.0)
+	{
+		specularCoeff = dot(reflectedLight, viewVector) * 0.5 + 0.5;
+		
+		// Raise specular coefficiant
+		for(int i = 0; i < 4; i++)
+		{
+			specularCoeff *= specularCoeff;
+		}
+	}
+	
+	// If on side of planet facing away from sun, no specular coefficiant
+	else
+	{
+		specularCoeff = 0.0;
+	}
 
 	// Calculate final color
-	finalColor = 0.15 * vec4(1) + 
-		     (vec4(diffuseIntens, 1) * texture(uTexture, vTexCoord) +
-		     vec4(specularCoeff * vec3(0), 1)) *
-		     vec4(1);
-	
-	finalColor = abs(finalColor);
+	finalColor = vec4(.15) + vec4(diffuseIntensity, 1) * 
+		     texture(uTexture, vTexCoord) + vec4(specularCoeff);
 	
 	// Output color
 	rtColor = finalColor;

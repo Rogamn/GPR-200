@@ -8,7 +8,6 @@ layout (location = 2) in vec2 aTexCoord;
 // Uniforms
 uniform mat4 uModelMat, uViewProjMat;
 uniform vec2 uMouse;
-uniform float uTime;
 
 // Varyings
 out vec4 vPosition;
@@ -24,6 +23,7 @@ mat3 zRotation(float angle)
 
 void main()
 {
+	// Can't edit aPosition, so copy it to new variable
 	vec4 position = aPosition;
 
 	// Set varyings
@@ -32,7 +32,7 @@ void main()
 	vTexCoord = aTexCoord;
 	
 	// Rotate Earth
-	position.xyz = zRotation(-uTime) * position.xyz;
+	position.xyz = zRotation(4.0 * -uMouse.x) * position.xyz;
 	
 	// Set gl_Position in clip space	
 	gl_Position = uViewProjMat * uModelMat * position;
