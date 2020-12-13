@@ -27,13 +27,11 @@ mat3 yRotation(float angle)
 
 void main()
 {
+	// Can't edit aPosition, so copy it to new variable
 	vec4 position = aPosition;
 
-	// Constantly spin in place	
-	position.xyz = yRotation(.25 * uTime) * xRotation(80.0) * position.xyz;
-	
-	// Move away from Earth
-	position.xz += 8.0;
+	// Constantly spin in place
+	position.xyz = yRotation(.1 * uTime) * xRotation(80.0) * position.xyz;
 	
 	// Set varying
 	vTexCoord = aTexCoord;

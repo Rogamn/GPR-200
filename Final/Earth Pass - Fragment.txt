@@ -6,7 +6,7 @@ precision highp float;
 
 // Uniforms
 uniform vec2 uMouse;
-uniform sampler2D uTexture;
+uniform sampler2D uEarthTexture;
 
 // Varyings
 in vec4 vPosition;
@@ -15,6 +15,7 @@ in vec2 vTexCoord;
 
 out vec4 rtColor;
 
+// Calculates a z-axis rotation matrix for a given angle
 mat3 zRotation(float angle)
 {
 	float sinAngle = sin(angle), cosAngle = cos(angle);
@@ -23,10 +24,11 @@ mat3 zRotation(float angle)
 
 void main()
 {
-	vec4 finalColor;
+	// Variables
+	vec4 finalColor, earth = texture(uEarthTexture, vTexCoord);;
 	
-	vec3 lightPos = zRotation(4.0 * uMouse.x) * vec3(1, 1, -.1), lightVector, attenuation, 
-	     diffuseIntensity, reflectedLight, viewVector;
+	vec3 lightPos = zRotation(4.0 * uMouse.x) * vec3(1, 1, -.4), lightVector, 
+			attenuation, diffuseIntensity, reflectedLight, viewVector;
 	
 	float diffuseCoeff, specularCoeff;
 	
@@ -48,14 +50,10 @@ void main()
 	// Calculate view vector
 	viewVector = normalize(lightPos - vec3(vPosition));
 	
-	/*
-		Calculate specular coefficient
-		We need the conditional to make sure we don't apply the specular coefficiant
-		to the other side of the planet
-		On my computer, I noticed no performance drops from this conditional
-	*/
+	// Calculate specular coefficient only on the side facing the Sun
 	if(dot(vNormal, lightPos) > 0.0)
 	{
+		// Calculate specular coefficient
 		specularCoeff = dot(reflectedLight, viewVector) * 0.5 + 0.5;
 		
 		// Raise specular coefficiant
@@ -72,8 +70,8 @@ void main()
 	}
 
 	// Calculate final color
-	finalColor = vec4(.15) + vec4(diffuseIntensity, 1) * 
-		     texture(uTexture, vTexCoord) + vec4(specularCoeff);
+	finalColor = earth * vec4(.15) + vec4(diffuseIntensity, 1) * 
+		     earth + vec4(specularCoeff);
 	
 	// Output color
 	rtColor = finalColor;
