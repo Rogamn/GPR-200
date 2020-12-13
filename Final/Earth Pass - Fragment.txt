@@ -25,7 +25,7 @@ mat3 zRotation(float angle)
 void main()
 {
 	// Variables
-	vec4 finalColor, earth = texture(uEarthTexture, vTexCoord);;
+	vec4 earth = texture(uEarthTexture, vTexCoord);
 	
 	vec3 lightPos = zRotation(4.0 * uMouse.x) * vec3(1, 1, -.4), lightVector, 
 			attenuation, diffuseIntensity, reflectedLight, viewVector;
@@ -70,9 +70,6 @@ void main()
 	}
 
 	// Calculate final color
-	finalColor = earth * vec4(.15) + vec4(diffuseIntensity, 1) * 
-		     earth + vec4(specularCoeff);
-	
-	// Output color
-	rtColor = finalColor;
+	rtColor = earth * vec4(.15) + vec4(diffuseIntensity, 1) * 
+		  earth + vec4(specularCoeff);
 }
